@@ -51,10 +51,14 @@ IBW=3 #the wait between the blocks
 #IBW=0.1
 ISI = [.7, .8, .9, 1, 1.1, 1.2]
 #ISI=[.01, .02]
-FixT = 500
-IntT = 500
-TargetT = 500
-MaskT = 200
+#FixT = 500
+#IntT = 500
+#TargetT = 500
+#MaskT = 200
+FixT = 0
+IntT = 0
+TargetT = 0
+MaskT = 0
 FixFrame = int(FixT/framelength)
 IntFrame = int(IntT/framelength)
 ImFrame = int(TargetT/framelength)
@@ -88,9 +92,24 @@ womcxts = ['139','103','197','135','111','192','131','129','65','41','208','20',
 womeyes = ['197','135','103','192','216','220','37','94','208','20','65','13','225','128','96','30']
     
 # All the images to be shown
+# this loop basically does this selection for the above lists (mencxts, meneyes, womcxts, womeyes):
+    # [cxt]+[eye]
+    # 0+1
+    # 0+0
+    # 1+1
+    # 1+0
+    # 2+3
+    # 2+2
+    # 3+3
+    # 3+2
+    #  .
+    #  .
+# to make the combinations of the images we have and put them in a list to use later.
+# Second part of the loop (just Iso eyes) goes through the eyes list and adds them to the list as well.)
+
 imnow =[]
 for sex in ['men','wom']:    
-    for eyes,cxts in zip(range(1,len(meneyes)+1,2), range(0,len(meneyes)+1,2)):
+    for eyes,cxts in zip(range(1,len(meneyes)+1,2), range(0,len(mencxts)+1,2)):
         for cxtind in range(2):
             for eyeind in range(0,-2,-1):
                 if sex == 'men':
@@ -101,9 +120,25 @@ for sex in ['men','wom']:
             if sex == 'men':
                 imnow.append(meneyes[eyes+eyeind]+'_eyes.png')
             else:
-                imnow.append(womeyes[eyes+eyeind]+'_eyes.png')
+                imnow.append(womeyes[eyes+eyeind]+'F_eyes.png')
+                
+# imnow now has:
+    # F0E1
+    # F0E0
+    # F1E1
+    # F1E0
+    # E0
+    # E1
+    # F2E3
+    # F2E2
+    # F3E3
+    # F3E2
+    # E2
+    # E3
+    # in that order
 
-# Creating the trials with balanced number of conditions, orientations, image occurrences
+
+# Creating the trials with balanced number of conditions, orientations, image occurrences using the order above
 # adding isos to the dataset changed the format alittle bit, now here I need to change it every 6 items.
 combos_new={'ssup': [] , 'ssinv': [],'sdup': [], 'sdinv': [],
     'dsup': [], 'dsinv': [],'ddup': [], 'ddinv': [],
@@ -123,6 +158,7 @@ for ori in ['up', 'inv']:
                     combos_new[condition+ori].append({'im1name':imnow[imgroup-im1],'im2name':imnow[imgroup-im2],'cond':condition,'ori':orientation,
                         'mask':imnow[imgroup-im1].split('.')[0]+'_mask.png',
                         'rt':0, 'acc':0, 'contrast':0, 'trialno':0})
+
         for i in range(2):
             for imgroup in range(5, len(imnow), 6):
                 for im1 in range(2):
@@ -136,40 +172,56 @@ for ori in ['up', 'inv']:
                         'mask':imnow[imgroup-im1].split('.')[0]+'_mask.png',
                         'rt':0, 'acc':0, 'contrast':0, 'trialno':0})
 
+
+
+
 # here we shuffle trials from each condition within the condition block
 for cond in combos_new.keys(): 
     rnd.shuffle(combos_new[f"{cond}"])
 
-blocks=[]
-miniblock_length=16
-n_miniblocks=8
-tempblock=[]
-i=0
-for ori in ['up','inv']:
-    for cond in ['s','d','iso']:
-        for blockno in range(n_miniblocks):
-            for ctr in range(int(miniblock_length/2)):
-                tempblock.append(combos_new[f"{cond}s{ori}"][ctr+i])
-                tempblock.append(combos_new[f"{cond}d{ori}"][ctr+i])
-                i+=1
-            rnd.shuffle(tempblock)
-            blocks.append(tempblock)
-            tempblock=[]
-            i=0
+
 
 # Making sure all big blocks have equal number of each condition
 # 8 big blocks, each have 6 miniblocks of length 16, 
 # each miniblock has different condition
 
+# in a single miniblock, we want only the same condition
+# 16 trials
+# 6 miniblocks (one for each condition (s*up,d*up,iso*up,s*inv,d*inv,iso*inv))
+# 8 big blocks.
+
+
+miniblock_length=16
+n_miniblocks=6
+n_bigblocks=8
+blocks=[]
+tempblock=[]
+for ori in ['up','inv']:
+    for cond in ['s','d','iso']:
+        for ctr in range(0,len(combos_new['ssup']),int(miniblock_length/2)):
+            for i in range(int(miniblock_length/2)):
+                tempblock.append(combos_new[f"{cond}s{ori}"][ctr+i])
+                tempblock.append(combos_new[f"{cond}d{ori}"][ctr+i])
+            rnd.shuffle(tempblock)
+            blocks.append(tempblock)
+            tempblock=[]
+
+# we now created 48 miniblocks, in the correct order 
+# [same up * 8, diff up*8, iso up * 8, same inv * 8, diff inv * 8, iso inv * 8]
+# and we need to make big blocks (a block made of 6 miniblocks) with each 
+# condition once in it.
+
+
+
 blocks2=[]
-big_block=[]
-for indexer in range(n_miniblocks):
-    for bigblock in range(0,len(blocks),n_miniblocks):
-        big_block.append(blocks[bigblock+indexer])
-        print(bigblock+indexer)
-        rnd.shuffle(big_block)
-    blocks2.append(big_block)
-    big_block=[]
+bigblock=[]
+for bigs in range(8):
+    for block in range(0,len(blocks),8):
+        bigblock.append(blocks[block+bigs])
+    rnd.shuffle(bigblock)
+    blocks2.append(bigblock)
+    bigblock=[]
+    
 
 final_blocks=[]
 for i in range(len(blocks2)):
@@ -180,6 +232,20 @@ for i in range(len(blocks2)):
 # expectedResult = [d for d in exampleSet if d['type'] in keyValList]
 # exTrials= data.TrialHandler(combos, nReps=1, method='sequential', originPath=dataPath)
     
+
+# %% Printing things to check ####
+# fieldnames=list(combos_new['ssup'][0].keys())
+# f = open('combos9.csv','w',encoding='UTF8', newline='')
+# writer2=csv.DictWriter(f, fieldnames=fieldnames)
+# writer2.writeheader()
+# a=0
+# for block in final_blocks:
+#     for trial in block:
+#         writer2.writerow(trial)
+#         a+=1
+#         print(a)
+# f.close()
+
 
 # %% Shortcut to make Psi Staircases
 def makePsi(nTrials=128, start_thresh=2):
@@ -248,7 +314,8 @@ writer=csv.DictWriter(f, fieldnames=fieldnames)
 writer.writeheader()
 
 def block_break(block_no):
-    timer=3
+    #timer=3
+    timer=1
     blocktext = visual.TextStim(
                     win=win,
                     height=.5,
@@ -261,7 +328,8 @@ def block_break(block_no):
             font="Palatino Linotype",
             alignHoriz = 'center')
     if block_no % 6 == 0:
-        timer=20
+        #timer=20
+        timer=0
     blocktext.text="""Please take a short rest before the next block.
     You can press "SPACE" to start again 
     after """ + str(timer) + """ seconds when you are ready.
@@ -286,6 +354,16 @@ def block_break(block_no):
     win.flip()
     core.wait(2)
                            
+
+
+fieldnames=list(blocks[0][0].keys())
+f = open('blocks.csv','w',encoding='UTF8', newline='')
+writer2=csv.DictWriter(f, fieldnames=fieldnames)
+writer2.writeheader()
+for block in final_blocks:
+    for trial in block:
+        writer2.writerow(trial)
+
 
 # %% Trial loop
 i=0
