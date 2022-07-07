@@ -12,5 +12,5 @@ identical or not.
 The stimuli are available on [this link](https://osf.io/zd48m)
 
 ![stimuli and procedure2](images/Picture2.png)
-![stimuli and procedure](images/Picture1.png)
+![stimuli and procedure](images/Picture_1.png)
 
