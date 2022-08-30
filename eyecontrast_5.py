@@ -35,6 +35,33 @@ mon.setDistance(57)
 mon.setWidth(50)
 mon.setSizePix(scrsize)
 
+
+# Subject Info
+
+exp_name = 'Eye Contrast'
+exp_info = {
+        'participant': '',
+        'gender': ('male', 'female'),
+        'age':'',
+        'screenwidth(cm)': '59',
+        'screenresolutionhori(pixels)': '1920',
+        'screenresolutionvert(pixels)': '1080',
+        'refreshrate(hz)': '60'
+        }
+
+dlg = gui.DlgFromDict(dictionary=exp_info, title=exp_name)
+    
+
+# If 'Cancel' is pressed, quit
+if dlg.OK == False:
+    core.quit()
+        
+# Get date and time
+exp_info['date'] = data.getDateStr()
+exp_info['exp_name'] = exp_name
+
+
+
 # %% Open a window
 win = visual.Window(monitor = mon, 
                     size = scrsize,
@@ -51,14 +78,10 @@ IBW=3 #the wait between the blocks
 #IBW=0.1
 ISI = [.7, .8, .9, 1, 1.1, 1.2]
 #ISI=[.01, .02]
-#FixT = 500
-#IntT = 500
-#TargetT = 500
-#MaskT = 200
-FixT = 0
-IntT = 0
-TargetT = 0
-MaskT = 0
+FixT = 500
+IntT = 500
+TargetT = 500
+MaskT = 200
 FixFrame = int(FixT/framelength)
 IntFrame = int(IntT/framelength)
 ImFrame = int(TargetT/framelength)
@@ -120,7 +143,7 @@ for sex in ['men','wom']:
             if sex == 'men':
                 imnow.append(meneyes[eyes+eyeind]+'_eyes.png')
             else:
-                imnow.append(womeyes[eyes+eyeind]+'F_eyes.png')
+                imnow.append(womeyes[eyes+eyeind]+'_eyes.png')
                 
 # imnow now has:
     # F0E1
@@ -158,7 +181,6 @@ for ori in ['up', 'inv']:
                     combos_new[condition+ori].append({'im1name':imnow[imgroup-im1],'im2name':imnow[imgroup-im2],'cond':condition,'ori':orientation,
                         'mask':imnow[imgroup-im1].split('.')[0]+'_mask.png',
                         'rt':0, 'acc':0, 'contrast':0, 'trialno':0})
-
         for i in range(2):
             for imgroup in range(5, len(imnow), 6):
                 for im1 in range(2):
@@ -248,12 +270,12 @@ for i in range(len(blocks2)):
 
 
 # %% Shortcut to make Psi Staircases
-def makePsi(nTrials=128, start_thresh=2):
+def makePsi(nTrials=128, start_thresh=1.5):
 # Image visibility ranges between 2 and 40, logarithmically, 40 possibilities.
     staircase = PsiMarginal.Psi(stimRange=np.geomspace(start_thresh,40,40,endpoint=True),
             Pfunction='Weibull', nTrials=nTrials,
             threshold=np.geomspace(start_thresh,40,40, endpoint=True), 
-            thresholdPrior=('normal',20,10), slope=np.geomspace(0.5, 20, 50, endpoint=True),
+            thresholdPrior=('normal',5,5), slope=np.geomspace(0.5, 20, 50, endpoint=True),
             guessRate=0.5, slopePrior=('gamma',3,6),lapseRate=0.05, lapsePrior=('beta',2,20), marginalize=True)
     return staircase
 # nTrials is trials PER staircase
@@ -308,14 +330,18 @@ change_clock = core.Clock()
 rt_clock = core.Clock()
 
 # %% Opening a file for writing the data
+if not os.path.isdir(dataPath):
+    os.makedirs(dataPath)
 fieldnames=list(blocks[0][0].keys())
-f = open('data2.csv','w',encoding='UTF8', newline='')
+data_fname = exp_info['participant'] + '_' + exp_info['age'] + '_' + exp_info['gender'][0] + '_' + exp_info['date'] + '.csv'
+data_fname = os.path.join(dataPath, data_fname)
+f = open(data_fname,'w',encoding='UTF8', newline='')
 writer=csv.DictWriter(f, fieldnames=fieldnames)
 writer.writeheader()
 
 def block_break(block_no):
-    #timer=3
-    timer=1
+    timer=3
+    # timer=1
     blocktext = visual.TextStim(
                     win=win,
                     height=.5,
@@ -328,8 +354,8 @@ def block_break(block_no):
             font="Palatino Linotype",
             alignHoriz = 'center')
     if block_no % 6 == 0:
-        #timer=20
-        timer=0
+        timer=20
+        # timer=0
     blocktext.text="""Please take a short rest before the next block.
     You can press "SPACE" to start again 
     after """ + str(timer) + """ seconds when you are ready.
@@ -356,14 +382,43 @@ def block_break(block_no):
                            
 
 
-fieldnames=list(blocks[0][0].keys())
-f = open('blocks.csv','w',encoding='UTF8', newline='')
-writer2=csv.DictWriter(f, fieldnames=fieldnames)
-writer2.writeheader()
-for block in final_blocks:
-    for trial in block:
-        writer2.writerow(trial)
+# fieldnames=list(blocks[0][0].keys())
+# f = open('blocks.csv','w',encoding='UTF8', newline='')
+# writer2=csv.DictWriter(f, fieldnames=fieldnames)
+# writer2.writeheader()
+# for block in final_blocks:
+#     for trial in block:
+#         writer2.writerow(trial)
 
+
+# We draw the text explaining what we will show
+instructions = visual.TextStim(
+    win=win,
+    pos=[0,6],
+    wrapWidth=None,
+    height=.5,
+    font="Palatino Linotype",
+    alignHoriz='center'
+    )
+
+    
+instructions.text = """
+In this experiment, you will see two faces (or eyes) displayed one after another.\n 
+Your task is to report whether the eye region (eyes and brows) \n of the subsequently showed faces were identical or different."""
+instructions.draw()
+
+instructions2=instructions
+instructions2.text = """
+If the eye regions are the SAME, press "S", if they are different, press "L"\n\n 
+
+Press SPACE key to continue.
+"""
+
+instructions2.pos=[0,0]
+instructions2.draw()
+
+win.flip()
+keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 
 # %% Trial loop
 i=0
