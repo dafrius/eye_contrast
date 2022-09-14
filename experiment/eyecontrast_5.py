@@ -61,7 +61,6 @@ exp_info['date'] = data.getDateStr()
 exp_info['exp_name'] = exp_name
 
 
-
 # %% Open a window
 win = visual.Window(monitor = mon, 
                     size = scrsize,
@@ -250,13 +249,28 @@ for i in range(len(blocks2)):
     for j in range(len(blocks2[i])):
         final_blocks.append(blocks2[i][j])
 
+sc=[np.zeros(8),np.ones(8)]
+sc2=[]
+for i in sc:
+    for j in i:
+        if j == 0:
+            j=2
+        sc2.append(int(j))
+
+# adding staircases to each block, 8 trials use staircase 1, the rest 8 use 2
+for i in final_blocks:
+    rnd.shuffle(sc2)
+    for j,t in zip(i,sc2):
+        j['staircase']=t
+
+
 
 # expectedResult = [d for d in exampleSet if d['type'] in keyValList]
 # exTrials= data.TrialHandler(combos, nReps=1, method='sequential', originPath=dataPath)
     
 
-# %% Printing things to check ####
-# fieldnames=list(combos_new['ssup'][0].keys())
+#%% Printing things to check ####
+#fieldnames=list(combos_new['ssup'][0].keys())
 # f = open('combos9.csv','w',encoding='UTF8', newline='')
 # writer2=csv.DictWriter(f, fieldnames=fieldnames)
 # writer2.writeheader()
@@ -278,8 +292,7 @@ def makePsi(nTrials=64, start_thresh=1.5):
             thresholdPrior=('normal',5,5), slope=np.geomspace(0.5, 20, 50, endpoint=True),
             guessRate=0.5, slopePrior=('gamma',3,6),lapseRate=0.05, lapsePrior=('beta',2,20), marginalize=True)
     return staircase
-# nTrials is trials PER staircase
-# sigma is slope
+# nTrials is trials PER staircase sigma is slope
 
 
 sameup=makePsi()
@@ -438,31 +451,49 @@ for block in final_blocks:
         if trial['ori']=='up':
             ori=180
             if trial['cond'][0] == 's' :
-                while sameup.xCurrent == None:
+                while sameup.xCurrent == None or sameup2.xCurrent == None:
                     pass # hang in this loop until the psi calculation has finished
-                visibility = sameup.xCurrent
+                if trial['staircase']==1:
+                    visibility = sameup.xCurrent
+                else:
+                    visibility = sameup2.xCurrent
             elif trial['cond'][0] == 'd':
-                while diffup.xCurrent == None:
+                while diffup.xCurrent == None or diffup2.xCurrent == None:
                     pass
-                visibility = diffup.xCurrent
+                if trial['staircase']==1:
+                    visibility = diffup.xCurrent
+                else:
+                    visibility = diffup2.xCurrent
             elif trial['cond'][0] == 'i':
-                while isoup.xCurrent == None:
+                while isoup.xCurrent == None or isoup2.xCurrent == None:
                     pass
-                visibility = isoup.xCurrent
+                if trial['staircase']==1:
+                    visibility = isoup.xCurrent
+                else:
+                    visibility = isoup2.xCurrent
         else:
             ori=0
             if trial['cond'][0] == 's':
-                while sameinv.xCurrent == None:
+                while sameinv.xCurrent == None or sameinv2.xCurrent == None:
                     pass # hang in this loop until the psi calculation has finished
-                visibility = sameinv.xCurrent
+                if trial['staircase']==1:
+                    visibility = sameinv.xCurrent
+                else:
+                    visibility = sameinv2.xCurrent
             elif trial['cond'][0] == 'd':
-                while diffinv.xCurrent == None:
+                while diffinv.xCurrent == None or diffinv2.xCurrent == None:
                     pass
-                visibility = diffinv.xCurrent
+                if trial['staircase']==1:
+                    visibility = diffinv.xCurrent
+                else:
+                    visibility = diffinv2.xCurrent
             elif trial['cond'][0] == 'i':
-                while isoinv.xCurrent == None:
+                while isoinv.xCurrent == None or isoinv2.xCurrent == None:
                     pass
-                visibility = isoinv.xCurrent
+                if trial['staircase']==1:
+                    visibility = isoinv.xCurrent
+                else:
+                    visibility = isoinv2.xCurrent
             
         im1=np.array(Image.open(os.path.join(stimPath,trial['im1name'])))
         im2=np.array(Image.open(os.path.join(stimPath,trial['im2name'])))
@@ -555,18 +586,37 @@ for block in final_blocks:
 
         if ori==180:
             if trial['cond'][0] == 's' :
-                sameup.addData(acc)
+                if trial['staircase'] == 1:
+                    sameup.addData(acc)
+                else:
+                    sameup2.addData(acc)
             elif trial['cond'][0] == 'd':
-                diffup.addData(acc)
+                if trial['staircase'] == 1:
+                    diffup.addData(acc)
+                else:
+                    diffup2.addData(acc)
             elif trial['cond'][0] == 'i':
-                isoup.addData(acc)
+                if trial['staircase'] ==1:
+                    isoup.addData(acc)
+                else:
+                    isoup2.addData(acc)
         else:
             if trial['cond'][0] == 's':
-                sameinv.addData(acc)
+                if trial['staircase']==1:
+                    sameinv.addData(acc)
+                else:
+                    sameinv2.addData(acc)
             elif trial['cond'][0] == 'd':
-                diffinv.addData(acc)
+                if trial['staircase']==1:
+                    diffinv.addData(acc)
+                else:
+                    diffinv2.addData(acc)
             elif trial['cond'][0] == 'i':
-                isoinv.addData(acc)
+                if trial['staircase']==1:
+                    isoinv.addData(acc)
+                else:
+                    isoinv2.addData(acc)
+
         writer.writerow(trial)
 
 f.close()
