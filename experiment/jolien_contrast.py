@@ -1,8 +1,10 @@
+
+
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jan 26 14:41:32 2022
 
-@author: canoluk
+@author: schuurmans
 """
 
 
@@ -11,8 +13,8 @@ import os
 import numpy as np
 import numpy.random as rnd
 from psychopy import visual, event, core, gui, data, monitors
-from PIL import Image
-import PsiMarginal
+from PIL import Image # this is used to manipulate images and do the alpha-blending
+import PsiMarginal # this is important because it is actually importing from another file in the same folder (PsiMarginal.py)
 import csv
 
 
@@ -23,17 +25,7 @@ dataPath="data"
 asfx='.png'
 
 # %% Monitor setup 
-mon = monitors.Monitor('Dell') #Pulls out photometer calibration settings by name.  mon.setDistance(57)
-mon.setWidth(float(50)) # Cm width
-horipix = 1920
-vertpix = 1080
-framerate = 60
-scrsize = (float(horipix),float(vertpix))
-framelength = 1000/(float(framerate))
-mon.setSizePix(scrsize)
-mon.setDistance(57)
-mon.setWidth(50)
-mon.setSizePix(scrsize)
+
 
 
 # Subject Info
@@ -46,7 +38,7 @@ exp_info = {
         'screenwidth(cm)': '59',
         'screenresolutionhori(pixels)': '1920',
         'screenresolutionvert(pixels)': '1080',
-        'refreshrate(hz)': '60'
+        'refreshrate(hz)': '60' #ViewPixx - Change this (120)
         }
 
 dlg = gui.DlgFromDict(dictionary=exp_info, title=exp_name)
@@ -62,11 +54,27 @@ exp_info['exp_name'] = exp_name
 
 
 
+mon = monitors.Monitor('Dell') #Pulls out photometer calibration settings by name.  
+# Change this if you are using the ViewPixx (you should find the proper name in PsychoPy Monitor Center)
+mon.setDistance(57)
+mon.setWidth(float(50)) # Cm width
+horipix = 1920
+vertpix = 1080
+framerate = 60
+scrsize = (float(horipix),float(vertpix))
+framelength = 1000/(float(framerate))
+mon.setSizePix(scrsize)
+mon.setDistance(57)
+mon.setWidth(50)
+mon.setSizePix(scrsize)
+
+
+
 # %% Open a window
 win = visual.Window(monitor = mon, 
                     size = scrsize,
                     color='grey',
-                    units='deg',
+                    units='deg', #you can change this to pixels/cm
                     fullscr=True,
                     allowStencil=True,
                     screen=1)
@@ -88,7 +96,7 @@ ImFrame = int(TargetT/framelength)
 MaskFrame = int(MaskT/framelength)
 
 
-# %% Fixation
+# %% Fixation Cross
 fixation = visual.ShapeStim(win, 
     vertices=((0, -0.3), (0, 0.3), (0,0), (-0.3,0), (0.3, 0)),
     lineWidth=3,
@@ -102,12 +110,22 @@ imlist=os.listdir(os.path.join(stimPath))
 masklist=os.listdir(os.path.join(maskPath))
 ims=[]
 ims2=[]
+masks=[]
 #we create the new variable, called ims, which contains all the pixel information of all the images
 for i in range(0, len(imlist)):
     ims.append(Image.open(os.path.join(stimPath,imlist[i]), mode="r"))
     ims2.append({'imname':imlist[i],'image':Image.open(os.path.join(stimPath,imlist[i]), mode="r")})
+    masks.append(Image.open(os.path.join(maskPath,masklist[i]), mode="r"))
 # we convert it into numpy arrays
 ims = np.array([np.array(im) for im in ims])
+masks = np.array([np.array(mask) for mask in masks])/256
+
+
+
+
+
+
+
 # Contexts and Eyes to be used
 mencxts = ['123','44' ,'17','125', '52','145','160','24','46','2','151', '49','147','146','25' , '7']
 meneyes=  ['100','125','38', '9' ,'148', '66','76' ,'2' ,'93','8', '87','146','25' ,'7'  ,'147','55']
@@ -229,7 +247,7 @@ for ori in ['up','inv']:
             tempblock=[]
 
 # we now created 48 miniblocks, in the correct order 
-# [same up * 8, diff up*8, iso up * 8, same inv * 8, diff inv * 8, iso inv * 8]
+# [same up * 8, diff up * 8, iso up * 8, same inv * 8, diff inv * 8, iso inv * 8]
 # and we need to make big blocks (a block made of 6 miniblocks) with each 
 # condition once in it.
 
@@ -244,6 +262,8 @@ for bigs in range(8):
     blocks2.append(bigblock)
     bigblock=[]
     
+# you should go to Helene for this something something something
+
 
 final_blocks=[]
 for i in range(len(blocks2)):
@@ -270,17 +290,21 @@ for i in range(len(blocks2)):
 
 
 # %% Shortcut to make Psi Staircases
-def makePsi(nTrials=128, start_thresh=1.5):
-# Image visibility ranges between 2 and 40, logarithmically, 40 possibilities.
+def makePsi(nTrials=128, start_thresh=1.5): # start_thresh is signal strength in percentage
+# Image visibility ranges between 1.5 and 40, logarithmically, 40 possibilities.
     staircase = PsiMarginal.Psi(stimRange=np.geomspace(start_thresh,40,40,endpoint=True),
             Pfunction='Weibull', nTrials=nTrials,
             threshold=np.geomspace(start_thresh,40,40, endpoint=True), 
             thresholdPrior=('normal',5,5), slope=np.geomspace(0.5, 20, 50, endpoint=True),
-            guessRate=0.5, slopePrior=('gamma',3,6),lapseRate=0.05, lapsePrior=('beta',2,20), marginalize=True)
+            guessRate=0.5, slopePrior=('gamma',3,6), lapseRate=0.05, lapsePrior=('beta',2,20), marginalize=True)
     return staircase
 # nTrials is trials PER staircase
 # sigma is slope
 
+# initialize a staircase for each condition
+
+
+#[f"{cond}s{ori}"]
 
 sameup=makePsi()
 diffup=makePsi()
@@ -290,10 +314,12 @@ diffinv=makePsi()
 isoinv=makePsi()
 
 # %% Occlude function
-def occlude(image, percentage, thickness=10):
+
+
+def occlude(image, back, signal):
     # we take the contrast and luminance of the eye region, excluding the background
     #eyecontrast = np.std(image[60:540,140:300], ddof=1)
-    eyeluminance=np.average(image[60:540, 157:337])
+    #luminance=np.average(image[:])
     # we create an Alpha channel array for the image, fill it with 255s
     srcImg=image
     srcHeight, srcWidth = srcImg.shape[:]
@@ -301,26 +327,23 @@ def occlude(image, percentage, thickness=10):
     # we initiate the occluder, as an image with same size as the source image,
     # fill it with zeros
     # and make an alpha channel for it.
-    occImg = np.zeros([srcHeight, srcWidth])
-    occA = np.full([srcHeight, srcWidth], 255)
+    backImg=back
+    backHeight, backWidth = backImg.shape[:]
+    backA = np.full([backHeight, backWidth], 255)
+    
     # alpha at its highest is 255, so we initiate another variable for that 
     # for easier operations later.
-    fullAlpha=255
+    fullAlpha=255 #needs to be 255
     # we reduce the Alpha transparency of the range of pixels that occluder 
     # will overlap
-    srcA[157:337, :] = fullAlpha -((100-percentage)/100*fullAlpha)
-    # we equalize occluder luminance to the eye luminance
-    occImg[157:337, :] = eyeluminance
-    # adjusting occluder alpha
-    occA[157:337, :]=(100-percentage)/100*fullAlpha
+    srcA[:, :] = fullAlpha -((100-signal)/100*fullAlpha)
+    backA[:, :] = ((100-signal)/100*fullAlpha)
     #we blend them, merge into a single image
-    blend=(srcImg*(srcA/255))+(occImg*(occA/255))
-    blend[157:157+thickness,:]=145
-    blend[337:337+thickness,:]=145
-    blend[157:337+thickness,0:thickness]=145
-    blend[157:337+thickness,600-thickness:600]=145
+    blend=(srcImg*(srcA/255))+(backImg*(backImg/255))
     return blend
 
+blend = occlude(ims[1],masks[5],50)
+Image.fromarray(blend.astype('uint8'))
 
 # %% Final arrangements before showing it
 bitmap1 = visual.ImageStim(win, size=[7.05,8.38], interpolate=True) 
@@ -465,12 +488,13 @@ for block in final_blocks:
         im2us=occlude(im2,visibility)
         im2=(im2us-127.5)/127.5
         mask_occluded=occlude(mask, visibility)
-        maskfinal=(mask_occluded-127.5)/127.5
+        maskfinal=(mask_occluded-127.5)/127.5 # .5 is the midvalue so you'd do (x-.5)/.5
         
         bitmap1.setOri(ori)
         bitmap2.setOri(ori)
         bitmap_mask.setOri(ori)
         
+        # you don't need this
         if trial['ori']== 'up':
             eyeleveling=-1.18 
             # eyeleveling=-1.38
@@ -481,6 +505,10 @@ for block in final_blocks:
         bitmap1.pos=(0,eyeleveling) #142+284/2 (5.1 is equal to 142 pixels, then we add half of the horizontal size (7/2) because pos. takes the center to the defined location.)
         bitmap2.pos=(0,eyeleveling)
         bitmap_mask.pos=(0,eyeleveling)
+        
+        
+        
+        
          
         bitmap1.setImage(im1)
         bitmap2.setImage(im2)
@@ -545,6 +573,7 @@ for block in final_blocks:
         # exTrials.addData('visib',visibility)
         i+=1
 
+        # Update staircase        
 
         if ori==180:
             if trial['cond'][0] == 's' :

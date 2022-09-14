@@ -1,2 +1,4 @@
-/exp_imgs/
-/masks/
+/experiment/exp_imgs/
+/experiment/masks/
+/analyses/
+/misc/

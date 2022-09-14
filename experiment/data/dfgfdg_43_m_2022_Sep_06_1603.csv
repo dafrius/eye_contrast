@@ -1,0 +1,9 @@
+im1name,im2name,cond,ori,mask,rt,acc,contrast,trialno
+87_eyes.png,87_eyes.png,isos,up,87_eyes_mask.png,10.944391499971971,0,4.481404746557163,0
+128_eyes.png,128_eyes.png,isos,up,128_eyes_mask.png,0.674957700073719,1,6.827012121491527,1
+13_eyes.png,65_eyes.png,isod,up,13_eyes_mask.png,0.7786187999881804,1,6.275775120201354,2
+9_eyes.png,38_eyes.png,isod,up,9_eyes_mask.png,4.318443000083789,1,5.76904693567962,3
+8_eyes.png,8_eyes.png,isos,up,8_eyes_mask.png,1.2011435000458732,1,5.303233769314314,4
+103_eyes.png,192_eyes.png,isod,up,103_eyes_mask.png,1.3311450999462977,1,4.8750319984495905,5
+8_eyes.png,8_eyes.png,isos,up,8_eyes_mask.png,0.7211115999380127,0,4.1195603452145715,6
+7_eyes.png,25_eyes.png,isod,up,7_eyes_mask.png,0.7115444999653846,1,5.76904693567962,7
