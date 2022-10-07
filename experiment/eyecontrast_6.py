@@ -16,28 +16,12 @@ import PsiMarginal
 import csv
 
 
-# %% Paths
+# %% Image Paths
 stimPath="exp_imgs" 
 maskPath="masks"
 dataPath="data"
 pracPath="prac_imgs"
 pracmaskPath="prac_scrambles"
-asfx='.png'
-
-
-# %% Monitor setup 
-mon = monitors.Monitor('Dell') #Pulls out photometer calibration settings by name.  mon.setDistance(57)
-mon.setWidth(float(50)) # Cm width
-horipix = 1920
-vertpix = 1080
-framerate = 60
-scrsize = (float(horipix),float(vertpix))
-framelength = 1000/(float(framerate))
-mon.setSizePix(scrsize)
-mon.setDistance(57)
-mon.setWidth(50)
-mon.setSizePix(scrsize)
-
 
 # Subject Info
 
@@ -64,6 +48,20 @@ exp_info['date'] = data.getDateStr()
 exp_info['exp_name'] = exp_name
 
 
+
+# %% Monitor setup 
+mon = monitors.Monitor('Dell') #Pulls out photometer calibration settings by name.  
+mon.setWidth(float(exp_info['screenwidth(cm)'])) # Cm width
+mon.setDistance(57)
+horipix = exp_info['screenresolutionhori(pixels)']
+vertpix = exp_info['screenresolutionvert(pixels)']
+framerate = exp_info['refreshrate(hz)']
+scrsize = (float(horipix),float(vertpix))
+framelength = 1000/(float(framerate))
+mon.setSizePix(scrsize)
+
+
+
 # %% Open a window
 win = visual.Window(monitor = mon, 
                     size = scrsize,
@@ -77,17 +75,12 @@ win.mouseVisible=False
 
 # %% Timing
 IBW=3 #the wait between the blocks
-#IBW=0.1
-ISI = [.7, .8, .9, 1, 1.1, 1.2]
-#ISI=[.01, .02]
-FixT = 500
-IntT = 500
-TargetT = 500
-MaskT = 200
-FixFrame = int(FixT/framelength)
-IntFrame = int(IntT/framelength)
-ImFrame = int(TargetT/framelength)
-MaskFrame = int(MaskT/framelength)
+
+ITI = [.7, .8, .9, 1, 1.1, 1.2] # inter-trial interval
+# Fixation, Interval, Target, Mask times in ms
+FixT, IntT, TargetT, MaskT = 500, 500, 500, 200
+# Fixation, Interval, Target, Mask times in terms of # of frames
+FixFrame, IntFrame, ImFrame, MaskFrame = int(FixT/framelength), int(IntT/framelength), int(TargetT/framelength), int(MaskT/FrameLength)
 
 
 # %% Fixation
@@ -98,36 +91,21 @@ fixation = visual.ShapeStim(win,
     lineColor="black"
     )
 
-# %% Pulling images out, putting them in a variable
-# We take all the images in the folder and put them in a list
-imlist=os.listdir(os.path.join(stimPath))
-masklist=os.listdir(os.path.join(maskPath))
-ims=[]
-ims2=[]
-#we create the new variable, called ims, which contains all the pixel information of all the images
-for i in range(0, len(imlist)):
-    ims.append(Image.open(os.path.join(stimPath,imlist[i]), mode="r"))
-    ims2.append({'imname':imlist[i],'image':Image.open(os.path.join(stimPath,imlist[i]), mode="r")})
-# we convert it into numpy arrays
-ims = np.array([np.array(im) for im in ims])
 
-praclist= os.listdir(os.path.join(pracPath))
-pracmasklist=os.listdir(os.path.join(pracmaskPath))
-pracims=[]
-pracims2=[]
-
-for i in range(0,len(praclist)):
-    pracims.append(Image.open(os.path.join(pracPath, praclist[i]), mode="r"))
-    pracims2.append({'imname':praclist[i],'image':Image.open(os.path.join(pracPath,praclist[i]), mode="r")})
-
-# Contexts and Eyes to be used
+# Contexts and Eyes to be used, these are arranged in a specific order 
+# depending on which eye fits on which face perfectly, and which are the more 
+# similar looking eyes as measured by pixel-wise correlations
+# e.g., the first and second elements of cxts are matched with first and second
+# elements of eyes. the combination of the four creates a 'quad' mixing and
+# matching the all possible elements.
 mencxts = ['123','44' ,'17','125', '52','145','160','24','46','2','151', '49','147','146','25' , '7']
 meneyes=  ['100','125','38', '9' ,'148', '66','76' ,'2' ,'93','8', '87','146','25' ,'7'  ,'147','55']
 womcxts = ['139','103','197','135','111','192','131','129','65','41','208','20','96','13','225','128']
 womeyes = ['197','135','103','192','216','220','37','94','208','20','65','13','225','128','96','30']
     
 # All the images to be shown
-# this loop basically does this selection for the above lists (mencxts, meneyes, womcxts, womeyes):
+# this loop below basically does this selection for the above lists    
+# (mencxts, meneyes, womcxts, womeyes):
     # [cxt]+[eye]
     # 0+1
     # 0+0
@@ -171,20 +149,9 @@ for sex in ['men','wom']:
     # E2
     # E3
     # in that order
-
-praccxts = ['21', '223', '31', '224', '37', '203', '78', '214','106', '226', '154', '209']
-praceyes=  ['154', '209', '106', '226', '214', '224', '37' ,'203' ,'31','163', '21','78'] 
-
-pracnow=[]
-for eyes,cxts in zip(range(1,len(praceyes)+1,2), range(0,len(praccxts)+1,2)):
-    for cxtind in range(2):
-        for eyeind in range(0,-2,-1):
-            pracnow.append(praccxts[cxts+cxtind]+'-'+praceyes[eyes+eyeind]+'.png')
-    for eyeind in range(0,-2,-1): # adding iso eyes
-            pracnow.append(praceyes[eyes+eyeind]+'_eyes.png')
  
 # Creating the trials with balanced number of conditions, orientations, image occurrences using the order above
-# adding isos to the dataset changed the format alittle bit, now here I need to change it every 6 items.
+
 combos_new={'ssup': [] , 'ssinv': [],'sdup': [], 'sdinv': [],
     'dsup': [], 'dsinv': [],'ddup': [], 'ddinv': [],
     'isosup': [], 'isosinv': [],'isodup': [], 'isodinv': []}
@@ -216,62 +183,11 @@ for ori in ['up', 'inv']:
                         'mask':imnow[imgroup-im1].split('.')[0]+'_mask.png',
                         'rt':0, 'acc':0, 'contrast':0, 'trialno':0})
 
-
-
-
+   
 # here we shuffle trials from each condition within the condition block
 for cond in combos_new.keys(): 
     rnd.shuffle(combos_new[f"{cond}"])
 
-pracs_new={'ssup': [] , 'ssinv': [],'sdup': [], 'sdinv': [],
-    'dsup': [], 'dsinv': [],'ddup': [], 'ddinv': [],
-    'isosup': [], 'isosinv': [],'isodup': [], 'isodinv': []}
-
-for ori in ['up', 'inv']:
-        for imgroup in range(3,len(pracnow),6):
-            for im1 in range(4):
-                for im2 in range(4):
-                    condition=''
-                    orientation = ori
-                    for cxteye in range(2):
-                        if pracnow[imgroup-im1].split('-')[cxteye] == pracnow[imgroup-im2].split('-')[cxteye]:
-                            condition+='s'
-                        else:
-                            condition+='d'           
-                    pracs_new[condition+ori].append({'im1name':pracnow[imgroup-im1],'im2name':pracnow[imgroup-im2],'cond':condition,'ori':orientation, 'mask':pracnow[imgroup-im1].split('.')[0].split('-')[0]+'_mask.png', 'rt':0, 'acc':0, 'contrast':0, 'trialno':0})
-        for i in range(2):
-            for imgroup in range(5, len(pracnow), 6):
-                for im1 in range(2):
-                    for im2 in range(2):
-                        orientation = ori
-                        if pracnow[imgroup-im1] == pracnow[imgroup-im2]:
-                            condition='isos'
-                        else:
-                            condition='isod'
-                        pracs_new[condition+ori].append({'im1name':pracnow[imgroup-im1],'im2name':pracnow[imgroup-im2],'cond':condition,'ori':orientation, 'mask':pracnow[imgroup-im1].split('.')[0].split('_')[0]+'_mask.png', 'rt':0, 'acc':0, 'contrast':0, 'trialno':0}) 
-
-for cond in pracs_new.keys():
-    rnd.shuffle(pracs_new[f"{cond}"])
-
-miniblock_length=24
-n_miniblocks=6
-n_bigblocks=8
-pracblocks=[]
-tempblock=[]
-for ori in ['up','inv']:
-    for cond in ['s','d','iso']:
-        for ctr in range(0,len(pracs_new['ssup']),int(miniblock_length/2)):
-            for i in range(int(miniblock_length/2)):
-                tempblock.append(pracs_new[f"{cond}s{ori}"][ctr+i])
-                tempblock.append(pracs_new[f"{cond}d{ori}"][ctr+i])
-            rnd.shuffle(tempblock)
-            pracblocks.append(tempblock)
-            tempblock=[]
-
-
-# here we shuffle trials from each condition within the condition block
-for cond in combos_new.keys(): 
-    rnd.shuffle(combos_new[f"{cond}"])
 
 
 
@@ -338,22 +254,73 @@ for i in final_blocks:
 
 
 
-# expectedResult = [d for d in exampleSet if d['type'] in keyValList]
-# exTrials= data.TrialHandler(combos, nReps=1, method='sequential', originPath=dataPath)
-    
+# Here we do the same operation, but this time with practice images
 
-#%% Printing things to check ####
-#fieldnames=list(combos_new['ssup'][0].keys())
-# f = open('combos9.csv','w',encoding='UTF8', newline='')
-# writer2=csv.DictWriter(f, fieldnames=fieldnames)
-# writer2.writeheader()
-# a=0
-# for block in final_blocks:
-#     for trial in block:
-#         writer2.writerow(trial)
-#         a+=1
-#         print(a)
-# f.close()
+praccxts = ['21', '223', '31', '224', '37', '203', '78', '214','106', '226', '154', '209']
+praceyes=  ['154', '209', '106', '226', '214', '224', '37' ,'203' ,'31','163', '21','78'] 
+
+pracnow=[]
+for eyes,cxts in zip(range(1,len(praceyes)+1,2), range(0,len(praccxts)+1,2)):
+    for cxtind in range(2):
+        for eyeind in range(0,-2,-1):
+            pracnow.append(praccxts[cxts+cxtind]+'-'+praceyes[eyes+eyeind]+'.png')
+    for eyeind in range(0,-2,-1): # adding iso eyes
+            pracnow.append(praceyes[eyes+eyeind]+'_eyes.png')
+ 
+
+
+
+pracs_new={'ssup': [] , 'ssinv': [],'sdup': [], 'sdinv': [],
+    'dsup': [], 'dsinv': [],'ddup': [], 'ddinv': [],
+    'isosup': [], 'isosinv': [],'isodup': [], 'isodinv': []}
+
+for ori in ['up', 'inv']:
+        for imgroup in range(3,len(pracnow),6):
+            for im1 in range(4):
+                for im2 in range(4):
+                    condition=''
+                    orientation = ori
+                    for cxteye in range(2):
+                        if pracnow[imgroup-im1].split('-')[cxteye] == pracnow[imgroup-im2].split('-')[cxteye]:
+                            condition+='s'
+                        else:
+                            condition+='d'           
+                    pracs_new[condition+ori].append({'im1name':pracnow[imgroup-im1],'im2name':pracnow[imgroup-im2],'cond':condition,'ori':orientation, 'mask':pracnow[imgroup-im1].split('.')[0].split('-')[0]+'_mask.png', 'rt':0, 'acc':0, 'contrast':0, 'trialno':0})
+        for i in range(2):
+            for imgroup in range(5, len(pracnow), 6):
+                for im1 in range(2):
+                    for im2 in range(2):
+                        orientation = ori
+                        if pracnow[imgroup-im1] == pracnow[imgroup-im2]:
+                            condition='isos'
+                        else:
+                            condition='isod'
+                        pracs_new[condition+ori].append({'im1name':pracnow[imgroup-im1],'im2name':pracnow[imgroup-im2],'cond':condition,'ori':orientation, 'mask':pracnow[imgroup-im1].split('.')[0].split('_')[0]+'_mask.png', 'rt':0, 'acc':0, 'contrast':0, 'trialno':0}) 
+
+for cond in pracs_new.keys():
+    rnd.shuffle(pracs_new[f"{cond}"])
+
+
+miniblock_length=24
+n_miniblocks=6
+n_bigblocks=8
+pracblocks=[]
+tempblock=[]
+for ori in ['up','inv']:
+    for cond in ['s','d','iso']:
+        for ctr in range(0,len(pracs_new['ssup']),int(miniblock_length/2)):
+            for i in range(int(miniblock_length/2)):
+                tempblock.append(pracs_new[f"{cond}s{ori}"][ctr+i])
+                tempblock.append(pracs_new[f"{cond}d{ori}"][ctr+i])
+            rnd.shuffle(tempblock)
+            pracblocks.append(tempblock)
+            tempblock=[]
+
+
+
+# With the practice, we don't bother too much with the equalization of
+# everything. This is where practice trials are ready already.
+# also, we don't use a staircase for practice, their visibility is pre-defined.
 
 
 # %% Shortcut to make Psi Staircases
@@ -415,10 +382,12 @@ def occlude(image, percentage, thickness=10):
     return blend
 
 
-# %% Final arrangements before showing it
+# %% Final arrangements before showing things
+# drawing bitmaps for image 1, image 2, and mask
 bitmap1 = visual.ImageStim(win, size=[7.05,8.38], interpolate=True) 
 bitmap2 = visual.ImageStim(win, size=[7.05,8.38], interpolate=True) 
 bitmap_mask = visual.ImageStim(win, size=[7.05,8.38], interpolate=True)
+# setting clocks for reaction time collection
 change_clock = core.Clock()
 rt_clock = core.Clock()
 
@@ -432,8 +401,11 @@ f = open(data_fname,'w',encoding='UTF8', newline='')
 writer=csv.DictWriter(f, fieldnames=fieldnames)
 writer.writeheader()
 
-def block_break(block_no):
-    timer=3
+# function that draws a break between blocks, shows which block they are at,
+# and takes as arguments block no, the break time between each block, and a
+# long break at every 6th block.
+def block_break(block_no, timershort, timerlong):
+    timer=timershort
     # timer=1
     blocktext = visual.TextStim(
                     win=win,
@@ -447,7 +419,7 @@ def block_break(block_no):
             font="Palatino Linotype",
             alignHoriz = 'center')
     if block_no % 6 == 0:
-        timer=20
+        timer=timerlong
         # timer=0
     blocktext.text="""Please take a short rest before the next block.
     You can press "SPACE" to start again 
@@ -472,18 +444,7 @@ def block_break(block_no):
         f.close()
     win.flip()
     core.wait(2)
-                           
-
-
-# fieldnames=list(blocks[0][0].keys())
-# f = open('blocks.csv','w',encoding='UTF8', newline='')
-# writer2=csv.DictWriter(f, fieldnames=fieldnames)
-# writer2.writeheader()
-# for block in final_blocks:
-#     for trial in block:
-#         writer2.writerow(trial)
-
-
+    
 # We draw the text explaining what we will show
 instructions = visual.TextStim(
     win=win,
@@ -514,9 +475,78 @@ win.flip()
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 
 
+# we start with the practice
 
 
-
+def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori):
+    im1=np.array(Image.open(os.path.join(path,im1name)))
+    im2=np.array(Image.open(os.path.join(path,im2name)))
+    mask=(np.array(Image.open(os.path.join(maskpath,maskname]))))/256
+    im1us=occlude(im1,visibility)
+    im1=(im1us-127.5)/127.5
+    im2us=occlude(im2,visibility)
+    im2=(im2us-127.5)/127.5
+    mask_occluded=occlude(mask, visibility)
+    maskfinal=(mask_occluded-127.5)/127.5
+    
+    bitmap1.setOri(ori)
+    bitmap2.setOri(ori)
+    bitmap_mask.setOri(ori)
+    
+    if practrial['ori']== 'up':
+        eyeleveling=-1.18 
+        # eyeleveling=-1.38
+    else:
+        eyeleveling=1.18
+        # eyeleveling=1.38
+    
+    bitmap1.pos=(0,eyeleveling) #142+284/2 (5.1 is equal to 142 pixels, then we add half of the horizontal size (7/2) because pos. takes the center to the defined location.)
+    bitmap2.pos=(0,eyeleveling)
+    bitmap_mask.pos=(0,eyeleveling)
+     
+    bitmap1.setImage(im1)
+    bitmap2.setImage(im2)
+    bitmap_mask.setImage(maskfinal)
+    
+    for nFrames in range(FixFrame): # 500 ms.
+            fixation.draw()
+            win.flip()
+            
+    for nFrames in range(IntFrame):  # 500 ms
+            win.flip()
+        
+    for nFrames in range(ImFrame): # 500 ms
+            bitmap1.draw()
+            win.flip()
+                
+    for nFrames in range(MaskFrame): # 200 ms
+            bitmap_mask.draw() 
+            win.flip()
+           
+           
+    bitmap2.draw()
+    win.flip()
+    change_clock.reset()
+    rt_clock.reset()
+                                    
+    # Wait until a response, or until time limit.
+    # keys = event.waitKeys(maxWait=timelimit, keyList=['s','l', 'escape'])
+             
+    keys = event.waitKeys(keyList=['s','l','escape','p'])     
+    if keys:
+        rt = rt_clock.getTime()
+        # fixation.clearTextures()
+        
+    bitmap1.clearTextures()
+    bitmap2.clearTextures()
+    win.flip()
+    
+    if not keys:
+        keys = event.waitKeys(keyList=['s','l','escape','p'])
+        rt = rt_clock.getTime()
+     
+    return keys, rt
+    
 
 
 i=0
@@ -525,7 +555,7 @@ pracDone=0
 for pracblock in pracblocks:
     block_no +=1
     if block_no >0:
-        block_break(block_no)
+        block_break(block_no,3,20)
     for practrial in pracblock:
         if practrial['ori']=='up':
             ori=180
@@ -562,7 +592,7 @@ for pracblock in pracblocks:
         bitmap2.setImage(im2)
         bitmap_mask.setImage(maskfinal)
         
-        for nFrames in range(FixFrame): # 600 ms.
+        for nFrames in range(FixFrame): # 500 ms.
                 fixation.draw()
                 win.flip()
                 
@@ -574,8 +604,8 @@ for pracblock in pracblocks:
                 win.flip()
                     
         for nFrames in range(MaskFrame): # 200 ms
-               bitmap_mask.draw() # We don't have a mask right now
-               win.flip()
+                bitmap_mask.draw() 
+                win.flip()
                
                
         bitmap2.draw()
@@ -642,7 +672,7 @@ block_no = -1
 for block in final_blocks:
     block_no += 1
     if block_no > 0:
-        block_break(block_no)
+        block_break(block_no,3,20)
     for trial in block:
         if trial['ori']=='up':
             ori=180
@@ -762,7 +792,6 @@ for block in final_blocks:
             if 'escape' in keys:
                 f.close()
                 win.close()
-                # exTrials.saveAsWideText('Exp_full' + '.csv', delim=',')
                 win.mouseVisible=True
                 break
             elif 's' in keys and (trial['cond'] == 'ss' or trial['cond'] == 'ds' or trial['cond'] == 'isos'): # is same
@@ -774,9 +803,6 @@ for block in final_blocks:
         trial['rt']=rt
         trial['contrast']=visibility
         trial['trialno']=i
-        # exTrials.addData('acc', acc)
-        # exTrials.addData('rt', rt)
-        # exTrials.addData('visib',visibility)
         i+=1
 
 
@@ -814,6 +840,10 @@ for block in final_blocks:
                     isoinv2.addData(acc)
 
         writer.writerow(trial)
+        # shuffle inter-trial intervals and choose one at random to wait.
+        rnd.shuffle(ITI)
+        core.wait(ITI[1])
+        
 
 f.close()
 # exTrials.saveAsWideText('Exp_full' + '.csv', delim=',')
