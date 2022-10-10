@@ -30,10 +30,10 @@ exp_info = {
         'participant': '',
         'gender': ('male', 'female'),
         'age':'',
-        'screenwidth(cm)': '59',
+        'screenwidth(cm)': '49',
         'screenresolutionhori(pixels)': '1920',
-        'screenresolutionvert(pixels)': '1080',
-        'refreshrate(hz)': '60'
+        'screenresolutionvert(pixels)': '1200',
+        'refreshrate(hz)': '120'
         }
 
 dlg = gui.DlgFromDict(dictionary=exp_info, title=exp_name)
@@ -50,7 +50,7 @@ exp_info['exp_name'] = exp_name
 
 
 # %% Monitor setup 
-mon = monitors.Monitor('Dell') #Pulls out photometer calibration settings by name.  
+mon = monitors.Monitor('Vpixx040821') #Pulls out photometer calibration settings by name.  
 mon.setWidth(float(exp_info['screenwidth(cm)'])) # Cm width
 mon.setDistance(57)
 horipix = exp_info['screenresolutionhori(pixels)']
