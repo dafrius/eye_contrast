@@ -56,6 +56,7 @@ instruction_dictionary = {'instructions.text' : "Dans cette expérience, vous al
                           'timertext.text':"Prêt",
                           'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
                           'blocktext2.text':" secondes quand vous êtes prêt. \n Bloc:"}
+
 #%% Creation of a function to translate the instructions
 def intoenglish(input_dictionary,language): 
     instruction_dictionary_english={} 
@@ -244,8 +245,8 @@ for ori in ['up','inv']:
 
 blocks2=[]
 bigblock=[]
-for bigs in range(8):
-    for block in range(0,len(blocks),8):
+for bigs in range(n_bigblocks):
+    for block in range(0,len(blocks),n_bigblocks):
         bigblock.append(blocks[block+bigs])
     rnd.shuffle(bigblock)
     blocks2.append(bigblock)
@@ -320,10 +321,9 @@ for cond in pracs_new.keys():
     rnd.shuffle(pracs_new[f"{cond}"])
 
 
-miniblock_length=24
-n_miniblocks=6
-n_bigblocks=8
+miniblock_length=12
 pracblocks=[]
+asd=[]
 tempblock=[]
 for ori in ['up','inv']:
     for cond in ['s','d','iso']:
@@ -334,13 +334,37 @@ for ori in ['up','inv']:
             rnd.shuffle(tempblock)
             pracblocks.append(tempblock)
             tempblock=[]
+# pracblocks has 24 blocks, first 12 up, second 12 inv
+# out of the 12, first 4 "same", next 4 "diff", next 4 "iso" 
 
-rnd.shuffle(pracblocks)
+
+# here we create 4 big prac blocks. we'll only use 2 of those to keep it short
+pracblocks2=[]
+n_bigblocks=int(len(pracblocks)/6) # 6 is the # of conditions(same-up, diff-inv,etc.)
+bigblock=[]
+for bigs in range(n_bigblocks):
+    for block in range(0,len(pracblocks),4):
+        bigblock.append(pracblocks[block+bigs])
+    rnd.shuffle(bigblock)
+    pracblocks2.append(bigblock)
+    bigblock=[]
+    
+
+# here we 'unfold' the big blocks so it's easier to index. 
+final_prac_blocks=[]
+for i in range(len(pracblocks2)):
+    for j in range(len(pracblocks2[i])):
+        final_prac_blocks.append(pracblocks2[i][j])
+
 
 
 # With the practice, we don't bother too much with the equalization of
 # everything. This is where practice trials are ready already.
 # also, we don't use a staircase for practice, their visibility is pre-defined.
+
+
+
+
 
 
 # %% Shortcut to make Psi Staircases
@@ -462,6 +486,7 @@ def block_break(block_no, totalblocks, timershort, timerlong):
     win.flip()
     core.wait(2)
     
+
 # We draw the text explaining what we will show
 instructions = visual.TextStim(win=win,
     pos=[0,6],
@@ -551,20 +576,36 @@ def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori):
 
 # we start with the practice
 
+
+tot_mini_blocks=12
 i=0
 block_no= -1
 pracDone=0
-for pracblock in pracblocks:
+totAcc=0
+for pracblock in final_prac_blocks:
     block_no +=1
     if block_no >0:
-        block_break(block_no,len(pracblocks),3,20)
+        if block_no == 6 or block_no == 12:
+            instructions.text= 'Your accuracy is:'+ str(acc_perc) + '%' 
+            instructions.draw()
+            win.flip()
+            keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
+            block_break(block_no,tot_mini_blocks,3,20)
+        else:
+            block_break(block_no,tot_mini_blocks,3,20)
+    if block_no == 12:
+        break
+
     for practrial in pracblock:
         if practrial['ori']=='up':
             ori=180
         else:
             ori=0
- 
-        visibility=3
+
+        visibility = 15
+        # the first big block is easy, second is harder
+        if block_no > 5:
+            visibility= 6
         
         keys, rt = trialsequence(pracPath,pracmaskPath, practrial['im1name'], practrial['im2name'], practrial['mask'], visibility, ori)
                           
@@ -572,7 +613,6 @@ for pracblock in pracblocks:
         if keys:
             if 'escape' in keys:
                 win.close()
-                # exTrials.saveAsWideText('Exp_full' + '.csv', delim=',')
                 win.mouseVisible=True
                 break
             elif 's' in keys and (practrial['cond'] == 'ss' or
@@ -584,7 +624,12 @@ for pracblock in pracblocks:
             elif 'p' in keys:
                 pracDone=1
                 break
+        #        block_no=5
+            
         i+=1
+        totAcc+=acc
+        acc_perc=(totAcc+acc)/i
+            
         # if 'p' key is pressed, it skips the practice round
     if pracDone==1:
         break
@@ -716,7 +761,6 @@ for block in final_blocks:
         
 
 f.close()
-# exTrials.saveAsWideText('Exp_full' + '.csv', delim=',')
 win.close()
 win.mouseVisible=True
 
