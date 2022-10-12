@@ -14,6 +14,7 @@ from psychopy import visual, event, core, gui, data, monitors
 from PIL import Image
 import PsiMarginal
 import csv
+import translators as ts
 
 
 # %% Image Paths
@@ -27,14 +28,15 @@ pracmaskPath="prac_scrambles"
 
 exp_name = 'Eye Contrast'
 exp_info = {
+        'language' : ('fr','en'),
         'participant': '',
         'gender': ('male', 'female'),
         'age':'',
+        'left-handed':False,
         'screenwidth(cm)': '49',
         'screenresolutionhori(pixels)': '1920',
         'screenresolutionvert(pixels)': '1200',
-        'refreshrate(hz)': '120'
-        }
+        'refreshrate(hz)': '120'}
 
 dlg = gui.DlgFromDict(dictionary=exp_info, title=exp_name)
     
@@ -46,9 +48,26 @@ if dlg.OK == False:
 # Get date and time
 exp_info['date'] = data.getDateStr()
 exp_info['exp_name'] = exp_name
+  
+#%% Creation of a dictonary with all the instruction
+instruction_dictionary = {'instructions.text' : "Dans cette expérience, vous allez voir deux visages (ou yeux) présentés l'un à la suite de l'autre.\n Votre tâche est d'indiquer si la région de yeux (yeux et sourcils) des visages présentés est identique ou différente.",
+                          'instructions2.text': "Si la région des yeux est IDENTIQUE, appuyez sur 'S',\n si elle est DIFFERENTE, appuyez sur 'L'. \n\n Appuyez sur la barre 'ESPACE' pour continuer.",
+                          'instructions3.text': "L'entrainement est terminé \n Appuyez sur la barre ESPACE pour continuer.",
+                          'timertext.text':"Prêt",
+                          'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
+                          'blocktext2.text':" secondes quand vous êtes prêt. \n Bloc:"}
+#%% Creation of a function to translate the instructions
+def intoenglish(input_dictionary,language): 
+    instruction_dictionary_english={} 
+    for k,phrase in input_dictionary.items():
+       translater = ts.google(phrase, from_language='fr', to_language=language)
+       instruction_dictionary_english[k] = translater
+    return instruction_dictionary_english
 
-
-
+#Now we translate the instruction if required
+if exp_info['language']!='fr':
+    language = exp_info['language']
+    instruction_dictionary=intoenglish(instruction_dictionary, language)   
 # %% Monitor setup 
 mon = monitors.Monitor('Vpixx040821') #Pulls out photometer calibration settings by name.  
 mon.setWidth(float(exp_info['screenwidth(cm)'])) # Cm width
@@ -67,7 +86,7 @@ win = visual.Window(monitor = mon,
                     size = scrsize,
                     color='grey',
                     units='deg',
-                    fullscr=True,
+                    fullscr=False,
                     allowStencil=True,
                     screen=1)
 # Hide the cursor when the window is opened
@@ -423,11 +442,7 @@ def block_break(block_no, totalblocks, timershort, timerlong):
     if block_no % 6 == 0:
         timer=timerlong
         # timer=0
-    blocktext.text="""Please take a short rest before the next block.
-    You can press "SPACE" to start again 
-    after """ + str(timer) + """ seconds when you are ready.
-
-    Block: """ + str(block_no) + """/""" + str(totalblocks)
+    blocktext.text= instruction_dictionary['blocktext1.text'] + str(timer) + instruction_dictionary['blocktext2.text'] + str(block_no) + """/""" + str(totalblocks)
     for time in range(timer):
         timer-=1
         blocktext.draw()
@@ -436,7 +451,7 @@ def block_break(block_no, totalblocks, timershort, timerlong):
         core.wait(1)
         win.flip()
         if timer == 0:
-            timertext.text="""READY"""
+            timertext.text= instruction_dictionary['timertext.text']
             blocktext.draw()
             timertext.draw()
             win.flip()
@@ -451,15 +466,11 @@ def block_break(block_no, totalblocks, timershort, timerlong):
 instructions = visual.TextStim(win=win,
     pos=[0,6],
     wrapWidth=None, height=.5, font="Palatino Linotype", alignHoriz='center')
-instructions.text = """ In this experiment, you will see two faces (or eyes) displayed one after another.\n Your task is to report whether the eye region (eyes and brows) \n of the subsequently showed faces were identical or different."""
+instructions.text = instruction_dictionary['instructions.text']
 instructions.draw()
 
 instructions2=instructions
-instructions2.text = """
-If the eye regions are the SAME, press "S", \n if they are different, press "L"\n\n 
-
-Press SPACE key to continue.
-"""
+instructions2.text = instruction_dictionary['instructions2.text']
 
 instructions2.pos=[0,0]
 instructions2.draw()
@@ -578,10 +589,7 @@ for pracblock in pracblocks:
     if pracDone==1:
         break
 
-instructions2.text = """
-Practice over \n
-Press SPACE key to continue.
-"""
+instructions2.text = instruction_dictionary['instructions3.text']
 
 
 instructions2.pos=[0,0]
