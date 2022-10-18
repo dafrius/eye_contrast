@@ -87,7 +87,7 @@ win = visual.Window(monitor = mon,
                     size = scrsize,
                     color= [-.3, -.3, -.3],
                     units='deg',
-                    fullscr=False,
+                    fullscr=True,
                     allowStencil=True,
                     screen=1)
 # Hide the cursor when the window is opened
