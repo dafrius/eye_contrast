@@ -85,7 +85,7 @@ mon.setSizePix(scrsize)
 # %% Open a window
 win = visual.Window(monitor = mon, 
                     size = scrsize,
-                    color='grey',
+                    color= [-.3, -.3, -.3],
                     units='deg',
                     fullscr=False,
                     allowStencil=True,
@@ -450,6 +450,7 @@ writer.writeheader()
 # long break at every 6th block.
 
 def block_break(block_no, totalblocks, timershort, timerlong):
+    win.setColor([-.3, -.3, -.3], colorSpace='rgb')
     timer=timershort
     # timer=1
     blocktext = visual.TextStim(
@@ -480,6 +481,7 @@ def block_break(block_no, totalblocks, timershort, timerlong):
             timertext.draw()
             win.flip()
     keys = event.waitKeys(keyList=['space','escape'])
+    win.color='grey'
     if 'escape' in keys:
         win.close()
         f.close()
@@ -577,11 +579,14 @@ def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori):
 # we start with the practice
 
 
+
+acc_perc=0
 tot_mini_blocks=12
 i=0
 block_no= -1
 pracDone=0
 totAcc=0
+win.color='grey'
 for pracblock in final_prac_blocks:
     block_no +=1
     if block_no >0:
