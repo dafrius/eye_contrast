@@ -50,8 +50,8 @@ exp_info['date'] = data.getDateStr()
 exp_info['exp_name'] = exp_name
   
 #%% Creation of a dictonary with all the instruction
-instruction_dictionary = {'instructions.text' : "Dans cette expérience, vous allez voir deux visages (ou yeux) présentés l'un à la suite de l'autre.\n Votre tâche est d'indiquer si la région de yeux (yeux et sourcils) des visages présentés est identique ou différente.",
-                          'instructions2.text': "Si la région des yeux est IDENTIQUE, appuyez sur 'S',\n si elle est DIFFERENTE, appuyez sur 'L'. \n\n Appuyez sur la barre 'ESPACE' pour continuer.",
+instruction_dictionary = {'instructions.text' : "Dans cette expérience, vous allez voir deux visages (ou yeux) présentés l'un à la suite de l'autre.\n Votre tâche est d'indiquer si la région occulaire (yeux et sourcils) des visages présentés est identique ou différente.",
+                          'instructions2.text': "Si la région occulaire est IDENTIQUE, appuyez sur 'S',\n si elle est DIFFERENTE, appuyez sur 'L'. \n\n Appuyez sur la barre 'ESPACE' pour continuer.",
                           'instructions3.text': "L'entrainement est terminé \n Appuyez sur la barre ESPACE pour continuer.",
                           'timertext.text':"Prêt",
                           'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
@@ -104,12 +104,26 @@ FixFrame, IntFrame, ImFrame, MaskFrame = int(FixT/framelength), int(IntT/framele
 
 
 # %% Fixation
-fixation = visual.ShapeStim(win, 
-    vertices=((0, -0.3), (0, 0.3), (0,0), (-0.3,0), (0.3, 0)),
-    lineWidth=3,
-    closeShape=False,
-    lineColor="black"
+fixation = visual.TextStim(
+    win=win,
+    pos=[0,.75],
+    wrapWidth=None,
+    height=1,
+    font="Palatino Linotype",
+    alignHoriz='center',
+    alignVert='center',
+    color= "black",
+    bold=True
     )
+fixation.text = """
++"""
+
+# visual.ShapeStim(win, 
+#     vertices=((0, -0.3), (0, 0.3), (0,0), (-0.3,0), (0.3, 0)),
+#     lineWidth=3,
+#     closeShape=False,
+#     lineColor="black"
+#     )
 
 
 # Contexts and Eyes to be used, these are arranged in a specific order 
@@ -455,15 +469,17 @@ def block_break(block_no, totalblocks, timershort, timerlong):
     # timer=1
     blocktext = visual.TextStim(
                     win=win,
-                    height=.5,
+                    height=.65,
                     font="Palatino Linotype",
-                    alignHoriz='center'
+                    alignHoriz='center',
+                    color = [-.9,-.9, -.9]
                     )   
     timertext = visual.TextStim(win=win,
-            height=.5, 
+            height=.65, 
             pos=[0,-5],
             font="Palatino Linotype",
-            alignHoriz = 'center')
+            alignHoriz = 'center',
+            color = [-.9,-.9, -.9])
     if block_no % 6 == 0:
         timer=timerlong
         # timer=0
@@ -492,7 +508,7 @@ def block_break(block_no, totalblocks, timershort, timerlong):
 # We draw the text explaining what we will show
 instructions = visual.TextStim(win=win,
     pos=[0,6],
-    wrapWidth=None, height=.5, font="Palatino Linotype", alignHoriz='center')
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9, -.9])
 instructions.text = instruction_dictionary['instructions.text']
 instructions.draw()
 
@@ -591,7 +607,7 @@ for pracblock in final_prac_blocks:
     block_no +=1
     if block_no >0:
         if block_no == 6 or block_no == 12:
-            instructions.text= 'Your accuracy is:'+ str(acc_perc) + '%' 
+            instructions.text= 'Votre précision est:'+ round((str(acc_perc)*100),2) + '%' 
             instructions.draw()
             win.flip()
             keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
