@@ -599,7 +599,7 @@ def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori):
 acc_perc=0
 tot_mini_blocks=12
 i=0
-block_no= -1
+block_no= 6
 pracDone=0
 totAcc=0
 win.color='grey'
@@ -607,13 +607,13 @@ for pracblock in final_prac_blocks:
     block_no +=1
     if block_no >0:
         if block_no == 6 or block_no == 12:
-            instructions.text= 'Votre précision est:'+ round((str(acc_perc)*100),2) + '%' 
+            instructions.text= 'Votre précision est:'+ str(round(acc_perc*100,2)) + '%' 
             instructions.draw()
             win.flip()
             keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
-            block_break(block_no,tot_mini_blocks,3,20)
+            block_break(block_no,tot_mini_blocks,7,20)
         else:
-            block_break(block_no,tot_mini_blocks,3,20)
+            block_break(block_no,tot_mini_blocks,7,20)
     if block_no == 12:
         break
 
@@ -671,7 +671,7 @@ block_no = -1
 for block in final_blocks:
     block_no += 1
     if block_no > 0:
-        block_break(block_no,len(final_blocks),3,20)
+        block_break(block_no,len(final_blocks),7,20)
     for trial in block:
         if trial['ori']=='up':
             ori=180
