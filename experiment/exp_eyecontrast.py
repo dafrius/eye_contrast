@@ -80,12 +80,17 @@ scrsize = (float(horipix),float(vertpix))
 framelength = 1000/(float(framerate))
 mon.setSizePix(scrsize)
 
+# how many rgb values do we lower the brightness
+reduce=50
 
+# the candela / metersquare value
+cdm2 = (128-reduce)/255*100
 
 # %% Open a window
 win = visual.Window(monitor = mon, 
                     size = scrsize,
-                    color= [-.3, -.3, -.3],
+                    colorSpace = "rgb255",
+                    color= [128-reduce, 128-reduce, 128-reduce],
                     units='deg',
                     fullscr=True,
                     allowStencil=True,
@@ -433,10 +438,10 @@ def occlude(image, percentage, thickness=10):
     occA[157:337, :]=(100-percentage)/100*fullAlpha
     #we blend them, merge into a single image
     blend=(srcImg*(srcA/255))+(occImg*(occA/255))
-    blend[157:157+thickness,:]=145
-    blend[337:337+thickness,:]=145
-    blend[157:337+thickness,0:thickness]=145
-    blend[157:337+thickness,600-thickness:600]=145
+    blend[157:157+thickness,:]=90
+    blend[337:337+thickness,:]=90
+    blend[157:337+thickness,0:thickness]=90
+    blend[157:337+thickness,600-thickness:600]=90
     return blend
 
 
@@ -464,7 +469,6 @@ writer.writeheader()
 # long break at every 6th block.
 
 def block_break(block_no, totalblocks, timershort, timerlong):
-    win.setColor([-.3, -.3, -.3], colorSpace='rgb')
     timer=timershort
     # timer=1
     blocktext = visual.TextStim(
@@ -497,7 +501,6 @@ def block_break(block_no, totalblocks, timershort, timerlong):
             timertext.draw()
             win.flip()
     keys = event.waitKeys(keyList=['space','escape'])
-    win.color='grey'
     if 'escape' in keys:
         win.close()
         f.close()
@@ -525,10 +528,16 @@ keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 # here we define a function for the trialsequence. manipulating this will
 # change things in both practice and experiment the same way.
 
-def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori):
+def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, reduce):
+    # we load the array reduce the brightness by a given value in "reduce" as input
     im1=np.array(Image.open(os.path.join(path,im1name)))
     im2=np.array(Image.open(os.path.join(path,im2name)))
+    im1= im1.astype(np.int16)-reduce
+    im2= im2.astype(np.int16)-reduce
+    
     mask=(np.array(Image.open(os.path.join(maskpath,maskname))))/256
+    mask=mask.astype(np.int16)-reduce
+    
     im1us=occlude(im1,visibility)
     im1=(im1us-127.5)/127.5
     im2us=occlude(im2,visibility)
@@ -599,13 +608,12 @@ def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori):
 acc_perc=0
 tot_mini_blocks=12
 i=0
-block_no= 6
+block_no=0
 pracDone=0
 totAcc=0
-win.color='grey'
 for pracblock in final_prac_blocks:
     block_no +=1
-    if block_no >0:
+    if block_no >1:
         if block_no == 6 or block_no == 12:
             instructions.text= 'Votre précision est:'+ str(round(acc_perc*100,2)) + '%' 
             instructions.draw()
@@ -628,7 +636,7 @@ for pracblock in final_prac_blocks:
         if block_no > 5:
             visibility= 6
         
-        keys, rt = trialsequence(pracPath,pracmaskPath, practrial['im1name'], practrial['im2name'], practrial['mask'], visibility, ori)
+        keys, rt = trialsequence(pracPath,pracmaskPath, practrial['im1name'], practrial['im2name'], practrial['mask'], visibility, ori, reduce)
                           
         acc = 0
         if keys:
