@@ -50,14 +50,14 @@ exp_info['date'] = data.getDateStr()
 exp_info['exp_name'] = exp_name
   
 #%% Creation of a dictonary with all the instruction
-instruction_dictionary = {'instructions.text' : "Dans cette expérience, vous allez voir deux visages (ou paire d'yeux) présentés l'un à la suite de l'autre. \n\nVotre tâche est d'indiquer si la région occulaire (yeux et sourcils) des visages présentés est identique ou différente.",
-                          'instructions2a.text': "Si la région occulaire est IDENTIQUE,\n appuyez sur 'S'.",
-                          'instructions2b.text': "Si la région occulaire est DIFFÉRENTE,\n appuyez sur 'L'.", 
+instruction_dictionary = {'instructions.text' : "Dans cette étude, vous allez voir deux visages (ou paire d'yeux) présentés l'un à la suite de l'autre. \n\nVotre tâche est d'indiquer si la région oculaire (yeux et sourcils) des visages présentés est identique ou différente.",
+                          'instructions2a.text': "Si la région oculaire est IDENTIQUE,\n appuyez sur 'S'.",
+                          'instructions2b.text': "Si la région oculaire est DIFFÉRENTE,\n appuyez sur 'L'.", 
                           'instructions2c.text': "Appuyez sur la barre 'ESPACE' pour continuer",
                           'instructions3.text': "Bravo!\nVous avez terminé l'entrainement.\nVous allez maintenant commencer l'étude.\n\nAppuyez sur la barre 'ESPACE' pour commencer l'étude",
                           'instructions4.text': "Veuillez placer vos mains sur les touches 'S' et 'L' du clavier.",
                           'instructions5.text': "Veuillez garder votre regard fixé au centre durant toute l'expérience.",
-                          'instructions6.text': "Appuyez sur la barre 'ESPACE' commencer l'entraînement.",
+                          'instructions6.text': "Appuyez sur la barre 'ESPACE' pour commencer l'entraînement.",
                           'timertext.text':"Prêt",
                           'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
                           'blocktext2.text':" secondes quand vous serez prêt. \n Bloc:"}
