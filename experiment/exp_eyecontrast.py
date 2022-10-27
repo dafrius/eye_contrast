@@ -50,12 +50,17 @@ exp_info['date'] = data.getDateStr()
 exp_info['exp_name'] = exp_name
   
 #%% Creation of a dictonary with all the instruction
-instruction_dictionary = {'instructions.text' : "Dans cette expérience, vous allez voir deux visages (ou yeux) présentés l'un à la suite de l'autre.\n Votre tâche est d'indiquer si la région occulaire (yeux et sourcils) des visages présentés est identique ou différente.",
-                          'instructions2.text': "Si la région occulaire est IDENTIQUE, appuyez sur 'S',\n si elle est DIFFERENTE, appuyez sur 'L'. \n\n Appuyez sur la barre 'ESPACE' pour continuer.",
-                          'instructions3.text': "L'entrainement est terminé \n Appuyez sur la barre ESPACE pour continuer.",
+instruction_dictionary = {'instructions.text' : "Dans cette expérience, vous allez voir deux visages (ou paire d'yeux) présentés l'un à la suite de l'autre. \n\nVotre tâche est d'indiquer si la région occulaire (yeux et sourcils) des visages présentés est identique ou différente.",
+                          'instructions2a.text': "Si la région occulaire est IDENTIQUE,\n appuyez sur 'S'.",
+                          'instructions2b.text': "Si la région occulaire est DIFFÉRENTE,\n appuyez sur 'L'.", 
+                          'instructions2c.text': "Appuyez sur la barre 'ESPACE' pour continuer",
+                          'instructions3.text': "Bravo!\nVous avez terminé l'entrainement.\nVous allez maintenant commencer l'étude.\n\nAppuyez sur la barre 'ESPACE' pour commencer l'étude",
+                          'instructions4.text': "Veuillez placer vos mains sur les touches 'S' et 'L' du clavier.",
+                          'instructions5.text': "Veuillez garder votre regard fixé au centre durant toute l'expérience.",
+                          'instructions6.text': "Appuyez sur la barre 'ESPACE' commencer l'entraînement.",
                           'timertext.text':"Prêt",
                           'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
-                          'blocktext2.text':" secondes quand vous êtes prêt. \n Bloc:"}
+                          'blocktext2.text':" secondes quand vous serez prêt. \n Bloc:"}
 
 #%% Creation of a function to translate the instructions
 def intoenglish(input_dictionary,language): 
@@ -68,7 +73,7 @@ def intoenglish(input_dictionary,language):
 #Now we translate the instruction if required
 if exp_info['language']!='fr':
     language = exp_info['language']
-    instruction_dictionary=intoenglish(instruction_dictionary, language)   
+    instruction_dictionary=intoenglish(instruction_dictionary, language) 
 # %% Monitor setup 
 mon = monitors.Monitor('Vpixx040821') #Pulls out photometer calibration settings by name.  
 mon.setWidth(float(exp_info['screenwidth(cm)'])) # Cm width
@@ -508,24 +513,79 @@ def block_break(block_no, totalblocks, timershort, timerlong):
     core.wait(2)
     
 
-# We draw the text explaining what we will show
+#%% We draw the text explaining what we will show
 instructions = visual.TextStim(win=win,
     pos=[0,6],
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9, -.9])
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
+
 instructions.text = instruction_dictionary['instructions.text']
 instructions.draw()
 
-instructions2=instructions
-instructions2.text = instruction_dictionary['instructions2.text']
+instructions2 = visual.TextStim(win=win,
+    pos=[-9,1], 
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 
-instructions2.pos=[0,0]
+instructions2.text = instruction_dictionary['instructions2a.text']
 instructions2.draw()
+
+instructions2 = visual.TextStim(win=win,
+    pos=[9,1], 
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
+
+instructions2.text = instruction_dictionary['instructions2b.text']
+instructions2.draw()
+
+instructions2=instructions
+instructions2.pos=[0,-11]
+
+instructions2.text = instruction_dictionary['instructions2c.text']
+instructions2.draw()
+
+# We add some examples  
+bitmap_im1 = 'exp_imgs/2-8.png'
+bitmap_im2 = 'exp_imgs/2-93.png'
+image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-13, -5], size = 8)
+image_stim1.draw()
+
+image_stim2 = visual.ImageStim(win, image = bitmap_im1, pos = [-6, -5], size = 8)
+image_stim2.draw()
+
+image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [13, -5], size = 8)
+image_stim3.draw()
+
+image_stim4 = visual.ImageStim(win, image = bitmap_im1, pos = [6, -5], size = 8)
+image_stim4.draw()
+
+win.flip() 
+
+keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
+
+# We add another instruction screen
+instructions2.text= instruction_dictionary['instructions4.text']
+instructions2.pos=[0,5]
+instructions2.draw()
+
+
+instructions2.text= instruction_dictionary['instructions5.text']
+instructions2.pos=[0,-5]
+instructions2.draw()
+
+instructions2.text= instruction_dictionary['instructions6.text']
+instructions2.pos=[0,-11]
+instructions2.draw()
+
+fixcross = visual.TextStim(win=win,
+    pos=[0,.75], wrapWidth=None, height=1, font="Palatino Linotype", alignHoriz='center', alignVert='center',
+    color= "black",bold=True)
+
+fixcross.text = """
++"""
+fixcross.draw()
 
 win.flip()
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 
-
-# here we define a function for the trialsequence. manipulating this will
+#%% here we define a function for the trialsequence. manipulating this will
 # change things in both practice and experiment the same way.
 
 def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, reduce):
@@ -600,7 +660,7 @@ def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, re
      
     return keys, rt
 
-
+#%%
 # we start with the practice
 
 
