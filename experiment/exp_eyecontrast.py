@@ -820,7 +820,7 @@ for block in final_blocks:
                     visibility = isoinv2.xCurrent
             
 
-        keys, rt = trialsequence(stimPath,maskPath, trial['im1name'], trial['im2name'], trial['mask'], visibility, ori)
+        keys, rt = trialsequence(stimPath,maskPath, trial['im1name'], trial['im2name'], trial['mask'], visibility, ori, reduce)
 
         acc = 0
         if keys:
