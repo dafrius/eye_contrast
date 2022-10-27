@@ -60,7 +60,7 @@ instruction_dictionary = {'instructions.text' : "Dans cette étude, vous allez v
                           'instructions6.text': "Appuyez sur la barre 'ESPACE' pour commencer l'entraînement.",
                           'timertext.text':"Prêt",
                           'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
-                          'blocktext2.text':" secondes quand vous serez prêt. \n Bloc:"}
+                          'blocktext2.text':" secondes lorsque vous serez prêt. \n Bloc:"}
 
 #%% Creation of a function to translate the instructions
 def intoenglish(input_dictionary,language): 
@@ -515,21 +515,21 @@ def block_break(block_no, totalblocks, timershort, timerlong):
 
 #%% We draw the text explaining what we will show
 instructions = visual.TextStim(win=win,
-    pos=[0,6],
+    pos=[0,7],
     wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 
 instructions.text = instruction_dictionary['instructions.text']
 instructions.draw()
 
 instructions2 = visual.TextStim(win=win,
-    pos=[-9,1], 
+    pos=[-9,3], 
     wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 
 instructions2.text = instruction_dictionary['instructions2a.text']
 instructions2.draw()
 
 instructions2 = visual.TextStim(win=win,
-    pos=[9,1], 
+    pos=[9,3], 
     wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 
 instructions2.text = instruction_dictionary['instructions2b.text']
@@ -541,20 +541,51 @@ instructions2.pos=[0,-11]
 instructions2.text = instruction_dictionary['instructions2c.text']
 instructions2.draw()
 
-# We add some examples  
+## We add some examples  
+# Same context condition
 bitmap_im1 = 'exp_imgs/2-8.png'
 bitmap_im2 = 'exp_imgs/2-93.png'
-image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-13, -5], size = 8)
+bitmap_im3 = 'exp_imgs/46-8.png'
+bitmap_eye1 = 'exp_imgs/8_eyes.png'
+bitmap_eye2 = 'exp_imgs/93_eyes.png'
+
+image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, -0.5], size = 4)
 image_stim1.draw()
 
-image_stim2 = visual.ImageStim(win, image = bitmap_im1, pos = [-6, -5], size = 8)
+image_stim2 = visual.ImageStim(win, image = bitmap_im1, pos = [-7, -0.5], size = 4)
 image_stim2.draw()
 
-image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [13, -5], size = 8)
+image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, -0.5], size = 4)
 image_stim3.draw()
 
-image_stim4 = visual.ImageStim(win, image = bitmap_im1, pos = [6, -5], size = 8)
+image_stim4 = visual.ImageStim(win, image = bitmap_im1, pos = [7, -0.5], size = 4)
 image_stim4.draw()
+
+# Different context condition
+image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, -4.5], size = 4)
+image_stim1.draw()
+
+image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [-7, -4.5], size = 4)
+image_stim2.draw()
+
+image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [7, -4.5], size = 4)
+image_stim2.draw()
+
+image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, -4.5], size = 4)
+image_stim3.draw()
+
+# Isolated condition
+image_stim1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-11, -8.5], size = 4)
+image_stim1.draw()
+
+image_stim1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-7, -8.5], size = 4)
+image_stim1.draw()
+
+image_stim1 = visual.ImageStim(win, image = bitmap_eye1, pos = [7, -8.5], size = 4)
+image_stim1.draw()
+
+image_stim1 = visual.ImageStim(win, image = bitmap_eye2, pos = [11, -8.5], size = 4)
+image_stim1.draw()
 
 win.flip() 
 
