@@ -60,6 +60,7 @@ instruction_dictionary = {'instructions.text' : "Dans cette étude, vous allez v
                           'instructions6.text': "Appuyez sur la barre 'ESPACE' pour commencer l'entraînement.",
                           'instructions7a.text': "Il est difficile de remarquer des changements au niveau de la région oculaire indépendament du reste du visage. \n\nPar conséquent, nous vous demandons de concentrer votre attention uniquement au niveau de la région oculaire (yeux et sourcils).",
                           'instructions7b.text': "Si vous avez des questions par rapport aux consignes, sentez-vous libre de les poser.",
+                          'instructions7c.text': "Veuillez maintenant prendre le temps de regarder les exemples ci-dessous.",
                           'timertext.text':"Prêt",
                           'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
                           'blocktext2.text':" secondes lorsque vous serez prêt. \n Bloc:"}
@@ -624,6 +625,10 @@ instructions2 = visual.TextStim(win=win,
     wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 instructions2.text = instruction_dictionary['instructions2b.text']
 instructions2.draw()
+
+instructions.text = instruction_dictionary['instructions7c.text']
+instructions.pos = [0,9]
+instructions.draw()
 
 instructions.text = instruction_dictionary['instructions7b.text']
 instructions.pos = [0,-9]
