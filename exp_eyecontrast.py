@@ -54,12 +54,10 @@ instruction_dictionary = {'instructions.text' : "Dans cette étude, vous allez v
                           'instructions2a.text': "Si la région oculaire est IDENTIQUE,\n appuyez sur 'S'.",
                           'instructions2b.text': "Si la région oculaire est DIFFÉRENTE,\n appuyez sur 'L'.", 
                           'instructions2c.text': "Appuyez sur la barre 'ESPACE' pour continuer",
-                          'instructions2d.text': "Les stimulis ont été créé de façon à créer une illusion avec les yeux et les visages. Par exemple, ici les visages similaires mais les yeux sont différents. Essayez de ne pas être influencé par les visages et concentrez vous uniquement sur la région oculaire",
                           'instructions3.text': "Bravo!\nVous avez terminé l'entrainement.\nVous allez maintenant commencer l'étude.\n\nAppuyez sur la barre 'ESPACE' pour commencer l'étude",
                           'instructions4.text': "Veuillez placer vos mains sur les touches 'S' et 'L' du clavier.",
                           'instructions5.text': "Veuillez garder votre regard fixé au centre durant toute l'expérience.",
                           'instructions6.text': "Appuyez sur la barre 'ESPACE' pour commencer l'entraînement.",
-                          'instructions7.text': "Sentez-vous libre de poser vos questions par rapport aux consignes, \nsi vous en avez.",
                           'timertext.text':"Prêt",
                           'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
                           'blocktext2.text':" secondes lorsque vous serez prêt. \n Bloc:"}
@@ -72,10 +70,88 @@ def intoenglish(input_dictionary,language):
        instruction_dictionary_english[k] = translater
     return instruction_dictionary_english
 
-#Now we translate the instruction if required
+# Now we translate the instruction if required
 if exp_info['language']!='fr':
     language = exp_info['language']
     instruction_dictionary=intoenglish(instruction_dictionary, language) 
+    
+
+### Occlude function
+def occlude(image, percentage, thickness=10):
+    # we take the contrast and luminance of the eye region, excluding the background
+    #eyecontrast = np.std(image[60:540,140:300], ddof=1)
+    eyeluminance=np.average(image[60:540, 157:337])
+    # we create an Alpha channel array for the image, fill it with 255s
+    srcImg=image
+    srcHeight, srcWidth = srcImg.shape[:]
+    srcA = np.full([srcHeight,srcWidth], 255)
+    # we initiate the occluder, as an image with same size as the source image,
+    # fill it with zeros
+    # and make an alpha channel for it.
+    occImg = np.zeros([srcHeight, srcWidth])
+    occA = np.full([srcHeight, srcWidth], 255)
+    # alpha at its highest is 255, so we initiate another variable for that 
+    # for easier operations later.
+    fullAlpha=255
+    # we reduce the Alpha transparency of the range of pixels that occluder 
+    # will overlap
+    srcA[157:337, :] = fullAlpha -((100-percentage)/100*fullAlpha)
+    # we equalize occluder luminance to the eye luminance
+    occImg[157:337, :] = eyeluminance
+    # adjusting occluder alpha
+    occA[157:337, :]=(100-percentage)/100*fullAlpha
+    #we blend them, merge into a single image
+    blend=(srcImg*(srcA/255))+(occImg*(occA/255))
+    blend[157:157+thickness,:]=90
+    blend[337:337+thickness,:]=90
+    blend[157:337+thickness,0:thickness]=90
+    blend[157:337+thickness,600-thickness:600]=90
+    return blend
+
+### Function that draws a break between blocks, shows which block they are at,
+# and takes as arguments block no, the break time between each block, and a
+# long break at every 6th block.
+
+def block_break(block_no, totalblocks, timershort, timerlong):
+    timer=timershort
+    # timer=1
+    blocktext = visual.TextStim(
+                    win=win,
+                    height=.65,
+                    font="Palatino Linotype",
+                    alignHoriz='center',
+                    color = [-.9,-.9, -.9]
+                    )   
+    timertext = visual.TextStim(win=win,
+            height=.65, 
+            pos=[0,-5],
+            font="Palatino Linotype",
+            alignHoriz = 'center',
+            color = [-.9,-.9, -.9])
+    if block_no % 6 == 0:
+        timer=timerlong
+        # timer=0
+    blocktext.text= instruction_dictionary['blocktext1.text'] + str(timer) + instruction_dictionary['blocktext2.text'] + str(block_no) + """/""" + str(totalblocks)
+    for time in range(timer):
+        timer-=1
+        blocktext.draw()
+        timertext.text=""":""" + str(timer)
+        timertext.draw()
+        core.wait(1)
+        win.flip()
+        if timer == 0:
+            timertext.text= instruction_dictionary['timertext.text']
+            blocktext.draw()
+            timertext.draw()
+            win.flip()
+    keys = event.waitKeys(keyList=['space','escape'])
+    if 'escape' in keys:
+        win.close()
+        f.close()
+    win.flip()
+    core.wait(2)
+    
+
 # %% Monitor setup 
 mon = monitors.Monitor('Vpixx040821') #Pulls out photometer calibration settings by name.  
 mon.setWidth(float(exp_info['screenwidth(cm)'])) # Cm width
@@ -419,38 +495,6 @@ sameinv2=makePsi()
 diffinv2=makePsi()
 isoinv2=makePsi()
 
-# %% Occlude function
-def occlude(image, percentage, thickness=10):
-    # we take the contrast and luminance of the eye region, excluding the background
-    #eyecontrast = np.std(image[60:540,140:300], ddof=1)
-    eyeluminance=np.average(image[60:540, 157:337])
-    # we create an Alpha channel array for the image, fill it with 255s
-    srcImg=image
-    srcHeight, srcWidth = srcImg.shape[:]
-    srcA = np.full([srcHeight,srcWidth], 255)
-    # we initiate the occluder, as an image with same size as the source image,
-    # fill it with zeros
-    # and make an alpha channel for it.
-    occImg = np.zeros([srcHeight, srcWidth])
-    occA = np.full([srcHeight, srcWidth], 255)
-    # alpha at its highest is 255, so we initiate another variable for that 
-    # for easier operations later.
-    fullAlpha=255
-    # we reduce the Alpha transparency of the range of pixels that occluder 
-    # will overlap
-    srcA[157:337, :] = fullAlpha -((100-percentage)/100*fullAlpha)
-    # we equalize occluder luminance to the eye luminance
-    occImg[157:337, :] = eyeluminance
-    # adjusting occluder alpha
-    occA[157:337, :]=(100-percentage)/100*fullAlpha
-    #we blend them, merge into a single image
-    blend=(srcImg*(srcA/255))+(occImg*(occA/255))
-    blend[157:157+thickness,:]=90
-    blend[337:337+thickness,:]=90
-    blend[157:337+thickness,0:thickness]=90
-    blend[157:337+thickness,600-thickness:600]=90
-    return blend
-
 
 # %% Final arrangements before showing things
 # drawing bitmaps for image 1, image 2, and mask
@@ -471,68 +515,25 @@ f = open(data_fname,'w',encoding='UTF8', newline='')
 writer=csv.DictWriter(f, fieldnames=fieldnames)
 writer.writeheader()
 
-# function that draws a break between blocks, shows which block they are at,
-# and takes as arguments block no, the break time between each block, and a
-# long break at every 6th block.
-
-def block_break(block_no, totalblocks, timershort, timerlong):
-    timer=timershort
-    # timer=1
-    blocktext = visual.TextStim(
-                    win=win,
-                    height=.65,
-                    font="Palatino Linotype",
-                    alignHoriz='center',
-                    color = [-.9,-.9, -.9]
-                    )   
-    timertext = visual.TextStim(win=win,
-            height=.65, 
-            pos=[0,-5],
-            font="Palatino Linotype",
-            alignHoriz = 'center',
-            color = [-.9,-.9, -.9])
-    if block_no % 6 == 0:
-        timer=timerlong
-        # timer=0
-    blocktext.text= instruction_dictionary['blocktext1.text'] + str(timer) + instruction_dictionary['blocktext2.text'] + str(block_no) + """/""" + str(totalblocks)
-    for time in range(timer):
-        timer-=1
-        blocktext.draw()
-        timertext.text=""":""" + str(timer)
-        timertext.draw()
-        core.wait(1)
-        win.flip()
-        if timer == 0:
-            timertext.text= instruction_dictionary['timertext.text']
-            blocktext.draw()
-            timertext.draw()
-            win.flip()
-    keys = event.waitKeys(keyList=['space','escape'])
-    if 'escape' in keys:
-        win.close()
-        f.close()
-    win.flip()
-    core.wait(2)
-    
 
 #%% We draw the text explaining what we will show
 instructions = visual.TextStim(win=win,
     pos=[0,7],
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [.0,.0,.0])
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 
 instructions.text = instruction_dictionary['instructions.text']
 instructions.draw()
 
 instructions2 = visual.TextStim(win=win,
     pos=[-9,3], 
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [.0,.0,.0])
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 
 instructions2.text = instruction_dictionary['instructions2a.text']
 instructions2.draw()
 
 instructions2 = visual.TextStim(win=win,
     pos=[9,3], 
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [.0,.0,.0])
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 
 instructions2.text = instruction_dictionary['instructions2b.text']
 instructions2.draw()
@@ -543,105 +544,136 @@ instructions2.pos=[0,-11]
 instructions2.text = instruction_dictionary['instructions2c.text']
 instructions2.draw()
 
-## We add some examples ======================================================================================= 
-# We begin by creating the bitmaps to modify the frame
-bitmap_im1 = np.array(Image.open(os.path.join('exp_imgs','2-8.png')))
-bitmap_im1 = bitmap_im1.astype(np.int16)-reduce
-bitmap_im1 = occlude(bitmap_im1, 50)
-bitmap_im1 = (bitmap_im1-127.5)/127.5
+## We add some examples  
+bitmap_im1 = np.array(Image.open(os.path.join("exp_imgs",'2-8.png')))
+bitmap_im2 = np.array(Image.open(os.path.join("exp_imgs",'2-93.png')))
+bitmap_im3 = np.array(Image.open(os.path.join("exp_imgs",'46-8.png')))
+bitmap_eye1 = np.array(Image.open(os.path.join("exp_imgs",'8_eyes.png')))
+bitmap_eye2 = np.array(Image.open(os.path.join("exp_imgs",'93_eyes.png')))
 
-bitmap_im2 = np.array(Image.open(os.path.join('exp_imgs','2-93.png')))
-bitmap_im2 = bitmap_im2.astype(np.int16)-reduce
-bitmap_im2 = occlude(bitmap_im2, 50)
-bitmap_im2 = (bitmap_im2-127.5)/127.5
+bitmap_im1 = bitmap_im1.astype(np.int16)
+bitmap_im2 = bitmap_im2.astype(np.int16)
+bitmap_im3 = bitmap_im3.astype(np.int16)
+bitmap_eye1 = bitmap_eye1.astype(np.int16)
+bitmap_eye2 = bitmap_eye2.astype(np.int16)
 
-bitmap_im3 = np.array(Image.open(os.path.join('exp_imgs','46-8.png')))
-bitmap_im3 = bitmap_im3.astype(np.int16)-reduce
-bitmap_im3 = occlude(bitmap_im3, 50)
-bitmap_im3 = (bitmap_im3-127.5)/127.5
-
-bitmap_eye1 = np.array(Image.open(os.path.join('exp_imgs','8_eyes.png')))
-bitmap_eye1 = bitmap_eye1.astype(np.int16)-reduce
-bitmap_eye1 = occlude(bitmap_eye1, 50)
-bitmap_eye1 = (bitmap_eye1-127.5)/127.5
-
-bitmap_eye2 = np.array(Image.open(os.path.join('exp_imgs','93_eyes.png')))
-bitmap_eye2 = bitmap_eye2.astype(np.int16)-reduce
-bitmap_eye2 = occlude(bitmap_eye2, 50)
-bitmap_eye2 = (bitmap_eye2-127.5)/127.5
-
-# Now we create pictures to put the bitmaps on
-# Same condition
+# Same context condition
 image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, -0.5], size = 4)
-image_stim1.setOri(180)
 image_stim1.draw()
+
 image_stim2 = visual.ImageStim(win, image = bitmap_im1, pos = [-7, -0.5], size = 4)
-image_stim2.setOri(180)
 image_stim2.draw()
+
 image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, -0.5], size = 4)
-image_stim3.setOri(180)
 image_stim3.draw()
+
 image_stim4 = visual.ImageStim(win, image = bitmap_im1, pos = [7, -0.5], size = 4)
-image_stim4.setOri(180)
 image_stim4.draw()
 
 # Different context condition
 image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, -4.5], size = 4)
-image_stim1.setOri(180)
 image_stim1.draw()
+
 image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [-7, -4.5], size = 4)
-image_stim2.setOri(180)
 image_stim2.draw()
+
 image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [7, -4.5], size = 4)
-image_stim2.setOri(180)
 image_stim2.draw()
+
 image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, -4.5], size = 4)
-image_stim3.setOri(180)
 image_stim3.draw()
 
 # Isolated condition
-image_eye1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-11, -8.5], size = 4)
-image_eye1.setOri(180)
-image_eye1.draw()
-image_eye1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-7, -8.5], size = 4)
-image_eye1.setOri(180)
-image_eye1.draw()
-image_eye1 = visual.ImageStim(win, image = bitmap_eye1, pos = [7, -8.5], size = 4)
-image_eye1.setOri(180)
-image_eye1.draw()
-image_eye2 = visual.ImageStim(win, image = bitmap_eye2, pos = [11, -8.5], size = 4)
-image_eye2.setOri(180)
-image_eye2.draw()
+image_stim1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-11, -8.5], size = 4)
+image_stim1.draw()
 
+image_stim1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-7, -8.5], size = 4)
+image_stim1.draw()
+
+image_stim1 = visual.ImageStim(win, image = bitmap_eye1, pos = [7, -8.5], size = 4)
+image_stim1.draw()
+
+image_stim1 = visual.ImageStim(win, image = bitmap_eye2, pos = [11, -8.5], size = 4)
+image_stim1.draw()
 
 win.flip() 
 
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
+# Adding new instructions
 
-# We add another instruction screen ==================================================================================
+instructions2 = visual.TextStim(win=win,
+    pos=[-9,3], 
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 
-instructions2.text = instruction_dictionary['instructions7.text']
-instructions2.pos = [0,0]
+instructions2.text = instruction_dictionary['instructions2a.text']
 instructions2.draw()
 
+instructions2 = visual.TextStim(win=win,
+    pos=[9,3], 
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
+
+instructions2.text = instruction_dictionary['instructions2b.text']
+instructions2.draw()
+
+instructions2=instructions
+instructions2.pos=[0,-11]
 
 instructions2.text = instruction_dictionary['instructions2c.text']
-instructions2.pos = [0,-11]
 instructions2.draw()
 
-win.flip()
+## We add some examples  
+
+# Same context condition
+image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, -0.5], size = 4)
+image_stim1.draw()
+
+image_stim2 = visual.ImageStim(win, image = bitmap_im1, pos = [-7, -0.5], size = 4)
+image_stim2.draw()
+
+image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, -0.5], size = 4)
+image_stim3.draw()
+
+image_stim4 = visual.ImageStim(win, image = bitmap_im1, pos = [7, -0.5], size = 4)
+image_stim4.draw()
+
+# Different context condition
+image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, -4.5], size = 4)
+image_stim1.draw()
+
+image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [-7, -4.5], size = 4)
+image_stim2.draw()
+
+image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [7, -4.5], size = 4)
+image_stim2.draw()
+
+image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, -4.5], size = 4)
+image_stim3.draw()
+
+# Isolated condition
+image_stim1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-11, -8.5], size = 4)
+image_stim1.draw()
+
+image_stim1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-7, -8.5], size = 4)
+image_stim1.draw()
+
+image_stim1 = visual.ImageStim(win, image = bitmap_eye1, pos = [7, -8.5], size = 4)
+image_stim1.draw()
+
+image_stim1 = visual.ImageStim(win, image = bitmap_eye2, pos = [11, -8.5], size = 4)
+image_stim1.draw()
+
+win.flip() 
 
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
-
-# We add the last instruction screen =================================================================================
+# We add another instruction screen
 instructions2.text= instruction_dictionary['instructions4.text']
-instructions2.pos=[0,-5]
+instructions2.pos=[0,5]
 instructions2.draw()
 
 
 instructions2.text= instruction_dictionary['instructions5.text']
-instructions2.pos=[0,5]
-instructions2.draw()  
+instructions2.pos=[0,-5]
+instructions2.draw()
 
 instructions2.text= instruction_dictionary['instructions6.text']
 instructions2.pos=[0,-11]
@@ -658,19 +690,83 @@ fixcross.draw()
 win.flip()
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 
-#%% here we define a function for the trialsequence. manipulating this will
-# change things in both practice and experiment the same way.
+#%%
+# def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, reduce):
+#     # we load the array reduce the brightness by a given value in "reduce" as input
+#     im1=np.array(Image.open(os.path.join(path,im1name)))
+#     im2=np.array(Image.open(os.path.join(path,im2name)))
+#     im1= im1.astype(np.int16)-reduce
+#     im2= im2.astype(np.int16)-reduce
+    
+#     mask=(np.array(Image.open(os.path.join(maskpath,maskname))))/256
+#     mask=mask.astype(np.int16)-reduce
+    
+#     im1us=occlude(im1,visibility)
+#     im1=(im1us-127.5)/127.5
+#     im2us=occlude(im2,visibility)
+#     im2=(im2us-127.5)/127.5
+#     mask_occluded=occlude(mask, visibility)
+#     maskfinal=(mask_occluded-127.5)/127.5
+
+#     bitmap1.setOri(ori)
+#     bitmap2.setOri(ori)
+#     bitmap_mask.setOri(ori)
+
+#     if ori == 180:
+#         eyeleveling=-1.18 
+#         # eyeleveling=-1.38
+#     else:
+#         eyeleveling=1.18
+#         # eyeleveling=1.38
+
+#     bitmap1.pos=(0,eyeleveling) #142+284/2 (5.1 is equal to 142 pixels, then we add half of the horizontal size (7/2) because pos. takes the center to the defined location.)
+#     bitmap2.pos=(0,eyeleveling)
+#     bitmap_mask.pos=(0,eyeleveling)
+     
+#     bitmap1.setImage(im1)
+#     bitmap2.setImage(im2)
+#     bitmap_mask.setImage(maskfinal)
+
+#     for nFrames in range(FixFrame): # 500 ms.
+#         fixation.draw()
+#         win.flip()
+            
+#     for nFrames in range(IntFrame):  # 500 ms
+#         win.flip()
+    
+#     for nFrames in range(ImFrame): # 500 ms
+#         bitmap1.draw()
+#         win.flip()
+                
+#     for nFrames in range(MaskFrame): # 200 ms
+#         bitmap_mask.draw() 
+#         win.flip()
+           
+           
+#     bitmap2.draw()
+#     win.flip()
+#     change_clock.reset()
+#     rt_clock.reset()
+#     keys = event.waitKeys(keyList=['s','l','escape','p'])     
+    
+#     if keys:
+#         rt = rt_clock.getTime()
+#         # fixation.clearTextures()
+        
+#     bitmap1.clearTextures()
+#     bitmap2.clearTextures()
+#     win.flip(
+
+#     if not keys:
+#         keys = event.waitKeys(keyList=['s','l','escape','p'])
+#         rt = rt_clock.getTime()
+     
+#     return keys, rt
 
 def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, reduce):
-    # we load the array reduce the brightness by a given value in "reduce" as input
     im1=np.array(Image.open(os.path.join(path,im1name)))
     im2=np.array(Image.open(os.path.join(path,im2name)))
-    im1= im1.astype(np.int16)-reduce
-    im2= im2.astype(np.int16)-reduce
-    
     mask=(np.array(Image.open(os.path.join(maskpath,maskname))))/256
-    mask=mask.astype(np.int16)-reduce
-    
     im1us=occlude(im1,visibility)
     im1=(im1us-127.5)/127.5
     im2us=occlude(im2,visibility)
@@ -732,11 +828,7 @@ def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, re
         rt = rt_clock.getTime()
      
     return keys, rt
-
-#%%
-# we start with the practice
-
-
+#%% we start with the practice
 
 acc_perc=0
 tot_mini_blocks=12
