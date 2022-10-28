@@ -54,12 +54,12 @@ instruction_dictionary = {'instructions.text' : "Dans cette étude, vous allez v
                           'instructions2a.text': "Si la région oculaire est IDENTIQUE,\n appuyez sur 'S'.",
                           'instructions2b.text': "Si la région oculaire est DIFFÉRENTE,\n appuyez sur 'L'.", 
                           'instructions2c.text': "Appuyez sur la barre 'ESPACE' pour continuer",
-                          'instructions2d.text': "Les stimulis ont été créé de façon à créer une illusion avec les yeux et les visages. Par exemple, ici les visages similaires mais les yeux sont différents. Essayez de ne pas être influencé par les visages et concentrez vous uniquement sur la région oculaire",
                           'instructions3.text': "Bravo!\nVous avez terminé l'entrainement.\nVous allez maintenant commencer l'étude.\n\nAppuyez sur la barre 'ESPACE' pour commencer l'étude",
-                          'instructions4.text': "Veuillez placer vos mains sur les touches 'S' et 'L' du clavier.",
+                          'instructions4.text': "Vous pouvez maintenant placer vos mains sur les touches 'S' et 'L' du clavier.",
                           'instructions5.text': "Veuillez garder votre regard fixé au centre durant toute l'expérience.",
                           'instructions6.text': "Appuyez sur la barre 'ESPACE' pour commencer l'entraînement.",
-                          'instructions7.text': "Sentez-vous libre de poser vos questions par rapport aux consignes, \nsi vous en avez.",
+                          'instructions7a.text': "Il sera difficile de remarquer des changements au niveau de la région oculaire indépendament du reste du visage. \n\nPar conséquent, nous vous demandons de concentrer votre attention uniquement au niveau de la région oculaire (yeux et sourcils).",
+                          'instructions7b.text': "Si vous avez des questions par rapport aux consignes, sentez-vous libre de les poser.",
                           'timertext.text':"Prêt",
                           'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
                           'blocktext2.text':" secondes lorsque vous serez prêt. \n Bloc:"}
@@ -620,8 +620,12 @@ keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 
 # We add another instruction screen ==================================================================================
 
-instructions2.text = instruction_dictionary['instructions7.text']
-instructions2.pos = [0,0]
+instructions2.text = instruction_dictionary['instructions7a.text']
+instructions2.pos = [0,5]
+instructions2.draw()
+
+instructions2.text = instruction_dictionary['instructions7b.text']
+instructions2.pos = [0,-5]
 instructions2.draw()
 
 
@@ -632,7 +636,7 @@ instructions2.draw()
 win.flip()
 
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
-
+ 
 # We add the last instruction screen =================================================================================
 instructions2.text= instruction_dictionary['instructions4.text']
 instructions2.pos=[0,-5]
