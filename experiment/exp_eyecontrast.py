@@ -58,7 +58,7 @@ instruction_dictionary = {'instructions.text' : "Dans cette étude, vous allez v
                           'instructions4.text': "Vous pouvez maintenant placer vos mains sur les touches 'S' et 'L' du clavier.",
                           'instructions5.text': "Veuillez garder votre regard fixé au centre durant toute l'expérience.",
                           'instructions6.text': "Appuyez sur la barre 'ESPACE' pour commencer l'entraînement.",
-                          'instructions7a.text': "Il sera difficile de remarquer des changements au niveau de la région oculaire indépendament du reste du visage. \n\nPar conséquent, nous vous demandons de concentrer votre attention uniquement au niveau de la région oculaire (yeux et sourcils).",
+                          'instructions7a.text': "Il est difficile de remarquer des changements au niveau de la région oculaire indépendament du reste du visage. \n\nPar conséquent, nous vous demandons de concentrer votre attention uniquement au niveau de la région oculaire (yeux et sourcils).",
                           'instructions7b.text': "Si vous avez des questions par rapport aux consignes, sentez-vous libre de les poser.",
                           'timertext.text':"Prêt",
                           'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
