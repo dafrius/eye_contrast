@@ -518,30 +518,30 @@ def block_break(block_no, totalblocks, timershort, timerlong):
 #%% We draw the text explaining what we will show
 instructions = visual.TextStim(win=win,
     pos=[0,7],
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [.0,.0,.0])
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
 
 instructions.text = instruction_dictionary['instructions.text']
 instructions.draw()
 
-instructions2 = visual.TextStim(win=win,
-    pos=[-9,3], 
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [.0,.0,.0])
 
-instructions2.text = instruction_dictionary['instructions2a.text']
-instructions2.draw()
+instructions.text = instruction_dictionary['instructions7a.text']
+instructions.pos = [0,-2]
+instructions.draw()
 
-instructions2 = visual.TextStim(win=win,
-    pos=[9,3], 
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [.0,.0,.0])
 
-instructions2.text = instruction_dictionary['instructions2b.text']
-instructions2.draw()
 
-instructions2=instructions
-instructions2.pos=[0,-11]
+instructions=instructions
+instructions.pos=[0,-11]
 
-instructions2.text = instruction_dictionary['instructions2c.text']
-instructions2.draw()
+instructions.text = instruction_dictionary['instructions2c.text']
+instructions.draw()
+
+
+win.flip() 
+
+keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
+
+# We add another instruction screen ==================================================================================
 
 ## We add some examples ======================================================================================= 
 # We begin by creating the bitmaps to modify the frame
@@ -572,66 +572,68 @@ bitmap_eye2 = (bitmap_eye2-127.5)/127.5
 
 # Now we create pictures to put the bitmaps on
 # Same condition
-image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, -0.5], size = 4)
+image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, 1.5], size = 4)
 image_stim1.setOri(180)
 image_stim1.draw()
-image_stim2 = visual.ImageStim(win, image = bitmap_im1, pos = [-7, -0.5], size = 4)
+image_stim2 = visual.ImageStim(win, image = bitmap_im1, pos = [-7, 1.5], size = 4)
 image_stim2.setOri(180)
 image_stim2.draw()
-image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, -0.5], size = 4)
+image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, 1.5], size = 4)
 image_stim3.setOri(180)
 image_stim3.draw()
-image_stim4 = visual.ImageStim(win, image = bitmap_im1, pos = [7, -0.5], size = 4)
+image_stim4 = visual.ImageStim(win, image = bitmap_im1, pos = [7, 1.5], size = 4)
 image_stim4.setOri(180)
 image_stim4.draw()
 
 # Different context condition
-image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, -4.5], size = 4)
+image_stim1 = visual.ImageStim(win, image = bitmap_im1, pos = [-11, -2.5], size = 4)
 image_stim1.setOri(180)
 image_stim1.draw()
-image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [-7, -4.5], size = 4)
+image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [-7, -2.5], size = 4)
 image_stim2.setOri(180)
 image_stim2.draw()
-image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [7, -4.5], size = 4)
+image_stim2 = visual.ImageStim(win, image = bitmap_im3, pos = [7, -2.5], size = 4)
 image_stim2.setOri(180)
 image_stim2.draw()
-image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, -4.5], size = 4)
+image_stim3 = visual.ImageStim(win, image = bitmap_im2, pos = [11, -2.5], size = 4)
 image_stim3.setOri(180)
 image_stim3.draw()
 
 # Isolated condition
-image_eye1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-11, -8.5], size = 4)
+image_eye1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-11, -6.5], size = 4)
 image_eye1.setOri(180)
 image_eye1.draw()
-image_eye1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-7, -8.5], size = 4)
+image_eye1 = visual.ImageStim(win, image = bitmap_eye1, pos = [-7, -6.5], size = 4)
 image_eye1.setOri(180)
 image_eye1.draw()
-image_eye1 = visual.ImageStim(win, image = bitmap_eye1, pos = [7, -8.5], size = 4)
+image_eye1 = visual.ImageStim(win, image = bitmap_eye1, pos = [7, -6.5], size = 4)
 image_eye1.setOri(180)
 image_eye1.draw()
-image_eye2 = visual.ImageStim(win, image = bitmap_eye2, pos = [11, -8.5], size = 4)
+image_eye2 = visual.ImageStim(win, image = bitmap_eye2, pos = [11, -6.5], size = 4)
 image_eye2.setOri(180)
 image_eye2.draw()
 
-
-win.flip() 
-
-keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
-
-# We add another instruction screen ==================================================================================
-
-instructions2.text = instruction_dictionary['instructions7a.text']
-instructions2.pos = [0,5]
+instructions2 = visual.TextStim(win=win,
+    pos=[-9,5], 
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
+instructions2.text = instruction_dictionary['instructions2a.text']
 instructions2.draw()
 
-instructions2.text = instruction_dictionary['instructions7b.text']
-instructions2.pos = [0,-5]
+instructions2 = visual.TextStim(win=win,
+    pos=[9,5], 
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
+instructions2.text = instruction_dictionary['instructions2b.text']
 instructions2.draw()
 
+instructions.text = instruction_dictionary['instructions7b.text']
+instructions.pos = [0,-9]
+instructions.draw()
 
 instructions2.text = instruction_dictionary['instructions2c.text']
 instructions2.pos = [0,-11]
 instructions2.draw()
+
+
 
 win.flip()
 
@@ -646,6 +648,7 @@ instructions2.draw()
 instructions2.text= instruction_dictionary['instructions5.text']
 instructions2.pos=[0,5]
 instructions2.draw()  
+
 
 instructions2.text= instruction_dictionary['instructions6.text']
 instructions2.pos=[0,-11]
