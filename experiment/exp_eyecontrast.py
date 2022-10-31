@@ -33,6 +33,7 @@ exp_info = {
         'gender': ('male', 'female'),
         'age':'',
         'left-handed':False,
+        'color_text': '.75',
         'screenwidth(cm)': '49',
         'screenresolutionhori(pixels)': '1920',
         'screenresolutionvert(pixels)': '1200',
@@ -54,16 +55,18 @@ instruction_dictionary = {'instructions.text' : "Dans cette étude, vous allez v
                           'instructions2a.text': "Si la région oculaire est IDENTIQUE,\n appuyez sur 'S'.",
                           'instructions2b.text': "Si la région oculaire est DIFFÉRENTE,\n appuyez sur 'L'.", 
                           'instructions2c.text': "Appuyez sur la barre 'ESPACE' pour continuer",
-                          'instructions3.text': "Bravo!\nVous avez terminé l'entrainement.\nVous allez maintenant commencer l'étude.\n\nAppuyez sur la barre 'ESPACE' pour commencer l'étude",
+                          'instructions3.text': "Bravo!\nVous avez terminé l'entrainement.\nVous allez maintenant commencer l'étude.\n\nAppuyez sur la barre 'ESPACE' pour commencer l'étude.",
                           'instructions4.text': "Vous pouvez maintenant placer vos mains sur les touches 'S' et 'L' du clavier.",
                           'instructions5.text': "Veuillez garder votre regard fixé au centre durant toute l'expérience.",
+                          'instructions5b.text': "Les stimuli vont maintenant devenir plus difficiles à repérer. Cependant les instructions précédentes restent en vigeur.",
                           'instructions6.text': "Appuyez sur la barre 'ESPACE' pour commencer l'entraînement.",
+                          'instructions6b.text': "Appuyez sur la barre 'ESPACE' pour continuer l'entraînement.",
                           'instructions7a.text': "Il est difficile de remarquer des changements au niveau de la région oculaire indépendament du reste du visage. \n\nPar conséquent, nous vous demandons de concentrer votre attention uniquement au niveau de la région oculaire (yeux et sourcils).",
                           'instructions7b.text': "Si vous avez des questions par rapport aux consignes, sentez-vous libre de les poser.",
                           'instructions7c.text': "Veuillez maintenant prendre le temps de regarder les exemples ci-dessous.",
                           'timertext.text':"Prêt",
-                          'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
-                          'blocktext2.text':" secondes lorsque vous serez prêt. \n Bloc:"}
+                          'blocktext1.text': "Veuillez faire une courte pause avant le prochain bloc. \n\nVous pouvez appuyer sur la barre 'ESPACE' pour continuer après ",
+                          'blocktext2.text':" secondes lorsque vous serez prêt. \n\n Bloc:"}
 
 #%% Creation of a function to translate the instructions
 def intoenglish(input_dictionary,language): 
@@ -247,7 +250,7 @@ for cond in combos_new.keys():
 # 6 miniblocks (one for each condition (s*up,d*up,iso*up,s*inv,d*inv,iso*inv))
 # 8 big blocks.
 
-
+color_text = float(exp_info['color_text'])
 miniblock_length=16
 n_miniblocks=6
 n_bigblocks=8
@@ -484,14 +487,14 @@ def block_break(block_no, totalblocks, timershort, timerlong):
                     height=.65,
                     font="Palatino Linotype",
                     alignHoriz='center',
-                    color = [-.9,-.9, -.9]
+                    color = [color_text,color_text,color_text]
                     )   
     timertext = visual.TextStim(win=win,
             height=.65, 
             pos=[0,-5],
             font="Palatino Linotype",
             alignHoriz = 'center',
-            color = [-.9,-.9, -.9])
+            color = [color_text,color_text,color_text])
     if block_no % 6 == 0:
         timer=timerlong
         # timer=0
@@ -517,16 +520,17 @@ def block_break(block_no, totalblocks, timershort, timerlong):
     
 
 #%% We draw the text explaining what we will show
+
 instructions = visual.TextStim(win=win,
     pos=[0,7],
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [color_text,color_text,color_text])
 
 instructions.text = instruction_dictionary['instructions.text']
 instructions.draw()
 
 
 instructions.text = instruction_dictionary['instructions7a.text']
-instructions.pos = [0,-2]
+instructions.pos = [0,-4]
 instructions.draw()
 
 
@@ -616,13 +620,13 @@ image_eye2.draw()
 
 instructions2 = visual.TextStim(win=win,
     pos=[-9,5], 
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [color_text,color_text,color_text])
 instructions2.text = instruction_dictionary['instructions2a.text']
 instructions2.draw()
 
 instructions2 = visual.TextStim(win=win,
     pos=[9,5], 
-    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [-.9,-.9,-.9])
+    wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [color_text,color_text,color_text])
 instructions2.text = instruction_dictionary['instructions2b.text']
 instructions2.draw()
 
@@ -646,12 +650,12 @@ keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
  
 # We add the last instruction screen =================================================================================
 instructions2.text= instruction_dictionary['instructions4.text']
-instructions2.pos=[0,-5]
+instructions2.pos=[0,7]
 instructions2.draw()
 
 
 instructions2.text= instruction_dictionary['instructions5.text']
-instructions2.pos=[0,5]
+instructions2.pos=[0,3]
 instructions2.draw()  
 
 
@@ -759,9 +763,26 @@ totAcc=0
 for pracblock in final_prac_blocks:
     block_no +=1
     if block_no >1:
-        if block_no == 6 or block_no == 12:
-            instructions.text= 'Votre précision est:'+ str(round(acc_perc*100,2)) + '%' 
+        if block_no == 6: 
+            instructions.text= 'Votre précision actuelle est : '+ str(round(acc_perc*100,2)) + '%' 
+            instructions.pos = [0,0]
             instructions.draw()
+            instructions2.text= instruction_dictionary['instructions5b.text']
+            instructions2.pos=[0,-5]
+            instructions2.draw()
+            instructions2.text= instruction_dictionary['instructions6b.text']
+            instructions2.pos=[0,-11]
+            instructions2.draw()
+            win.flip()
+            keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
+            block_break(block_no,tot_mini_blocks,7,20)
+        elif block_no == 12:
+            instructions.text= 'Votre précision globale est : '+ str(round(acc_perc*100,2)) + '%' 
+            instructions.pos = [0,0]
+            instructions.draw()
+            instructions2.text= instruction_dictionary['instructions2c.text']
+            instructions2.pos=[0,-11]
+            instructions2.draw()
             win.flip()
             keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
             block_break(block_no,tot_mini_blocks,7,20)
