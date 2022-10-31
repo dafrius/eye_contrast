@@ -530,7 +530,7 @@ instructions.draw()
 
 
 instructions.text = instruction_dictionary['instructions7a.text']
-instructions.pos = [0,-2]
+instructions.pos = [0,-4]
 instructions.draw()
 
 
@@ -650,12 +650,12 @@ keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
  
 # We add the last instruction screen =================================================================================
 instructions2.text= instruction_dictionary['instructions4.text']
-instructions2.pos=[0,-5]
+instructions2.pos=[0,7]
 instructions2.draw()
 
 
 instructions2.text= instruction_dictionary['instructions5.text']
-instructions2.pos=[0,5]
+instructions2.pos=[0,3]
 instructions2.draw()  
 
 
