@@ -249,7 +249,7 @@ for cond in combos_new.keys():
 # 6 miniblocks (one for each condition (s*up,d*up,iso*up,s*inv,d*inv,iso*inv))
 # 8 big blocks.
 
-
+color_text = .75
 miniblock_length=16
 n_miniblocks=6
 n_bigblocks=8
@@ -486,14 +486,14 @@ def block_break(block_no, totalblocks, timershort, timerlong):
                     height=.65,
                     font="Palatino Linotype",
                     alignHoriz='center',
-                    color = [-.9,-.9, -.9]
+                    color = [color_text,color_text,color_text]
                     )   
     timertext = visual.TextStim(win=win,
             height=.65, 
             pos=[0,-5],
             font="Palatino Linotype",
             alignHoriz = 'center',
-            color = [-.9,-.9, -.9])
+            color = [color_text,color_text,color_text])
     if block_no % 6 == 0:
         timer=timerlong
         # timer=0
@@ -519,7 +519,6 @@ def block_break(block_no, totalblocks, timershort, timerlong):
     
 
 #%% We draw the text explaining what we will show
-color_text = .75
 
 instructions = visual.TextStim(win=win,
     pos=[0,7],
