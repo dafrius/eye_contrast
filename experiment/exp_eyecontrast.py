@@ -33,6 +33,7 @@ exp_info = {
         'gender': ('male', 'female'),
         'age':'',
         'left-handed':False,
+        'color_text': '.75',
         'screenwidth(cm)': '49',
         'screenresolutionhori(pixels)': '1920',
         'screenresolutionvert(pixels)': '1200',
@@ -249,7 +250,7 @@ for cond in combos_new.keys():
 # 6 miniblocks (one for each condition (s*up,d*up,iso*up,s*inv,d*inv,iso*inv))
 # 8 big blocks.
 
-color_text = .75
+color_text = float(exp_info['color_text'])
 miniblock_length=16
 n_miniblocks=6
 n_bigblocks=8
