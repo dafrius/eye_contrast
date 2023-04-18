@@ -1,3 +1,0 @@
-im1name,im2name,cond,ori,mask,rt,acc,contrast,trialno,staircase
-160-2.png,160-2.png,ss,inv,160-2_mask.png,0.3778970241546631,0,4.481404746557163,0,2
-111-220F.png,111-216F.png,sd,inv,111-220F_mask.png,0.15051698684692383,1,4.481404746557163,1,1
