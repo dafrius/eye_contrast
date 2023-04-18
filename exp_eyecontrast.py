@@ -690,7 +690,7 @@ fixcross.draw()
 win.flip()
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 
-#%%
+#%% Trial Sequence
 # def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, reduce):
 #     # we load the array reduce the brightness by a given value in "reduce" as input
 #     im1=np.array(Image.open(os.path.join(path,im1name)))
