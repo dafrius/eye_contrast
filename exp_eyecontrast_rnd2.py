@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jan 26 14:41:32 2022
+Created on Tue Apr 18 15:04:39 2023
 
 @author: canoluk
 """
+
 
 
 # %% Package imports
@@ -201,7 +202,7 @@ for sex in ['men','wom']:
     # in that order
  
     
-# %% Trial order - Main
+# %% Trial order
 # Creating the trials with balanced number of conditions, orientations, image occurrences using the order above
 
 combos_new={'ssup': [] , 'ssinv': [],'sdup': [], 'sdinv': [],
@@ -241,8 +242,6 @@ for cond in combos_new.keys():
     rnd.shuffle(combos_new[f"{cond}"])
 
 
-
-
 # Making sure all big blocks have equal number of each condition
 # 8 big blocks, each have 6 miniblocks of length 16, 
 # each miniblock has different condition
@@ -253,69 +252,50 @@ for cond in combos_new.keys():
 # 8 big blocks.
 
 
-block_length=48
-n_rep_in_block=block_length/len(combos_new)*2
-n_blocks=16
 blocks=[]
 tempblock=[]
-for ori in ['up','inv']:
-    for cond in ['s','d','iso']:
-        for ctr in range(0,len(combos_new['ssup']),int(block_length/2)):
-            for i in range(int(block_length/2)):
-                tempblock.append(combos_new[f"{cond}s{ori}"][ctr+i])
-                tempblock.append(combos_new[f"{cond}d{ori}"][ctr+i])
-            rnd.shuffle(tempblock)
-            blocks.append(tempblock)
-            tempblock=[]
+n_blocks=16
+block_length=48
+repetition=block_length/len(combos_new.keys())
+ctr=0
 
-ssup x 8
-ssinv x 8
-sdup x 8 
-sdinv x 8
-isoup x 8
-isoinv x 8
-
-
-
-
-# we now created 16 blocks, with all conditions inside represented equally
-# [same up * 8, diff up*8, iso up * 8, same inv * 8, diff inv * 8, iso inv * 8]
-# and we need to make big blocks (a block made of 6 miniblocks) with each 
-# condition once in it.
-
-
-
-blocks2=[]
-bigblock=[]
-for bigs in range(n_bigblocks):
-    for block in range(0,len(blocks),n_bigblocks):
-        bigblock.append(blocks[block+bigs])
-    rnd.shuffle(bigblock)
-    blocks2.append(bigblock)
-    bigblock=[]
+for blockno in range(n_blocks):
+    for rep in range(int(repetition)):
+        for cond in combos_new.keys():
+            tempblock.append(combos_new[f"{cond}"][int(ctr)+rep])
+    ctr=ctr+repetition    
+    rnd.shuffle(tempblock)
+    blocks.append(tempblock)
+    tempblock=[]
     
 
-final_blocks=[]
-for i in range(len(blocks2)):
-    for j in range(len(blocks2[i])):
-        final_blocks.append(blocks2[i][j])
+fieldnames=list(blocks[0][0].keys())
+with open('firstcheck2.csv', 'w',newline='') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    for i in range(len(blocks)):
+        for j in range(len(blocks[0])):
+            writer.writerow(blocks[i][j])
 
-sc=[np.zeros(8),np.ones(8)]
-sc2=[]
-for i in sc:
-    for j in i:
-        if j == 0:
-            j=2
-        sc2.append(int(j))
+    
+NEED TO ADD STAIRCASE HERE
+
+# sc=[np.zeros(8),np.ones(8)]
+# sc2=[]
+# for i in sc:
+#     for j in i:
+#         if j == 0:
+#             j=2
+#         sc2.append(int(j))
 
 # adding staircases to each block, 8 trials use staircase 1, the rest 8 use 2
-for i in final_blocks:
-    rnd.shuffle(sc2)
-    for j,t in zip(i,sc2):
-        j['staircase']=t
+# for i in final_blocks:
+#     rnd.shuffle(sc2)
+#     for j,t in zip(i,sc2):
+#         j['staircase']=t
 
-# %% Trial order - Practice
 
+# %% Trial Order - Practice
 # Here we do the same operation, but this time with practice images
 
 praccxts = ['21', '223', '31', '224', '37', '203', '78', '214','106', '226', '154', '209']

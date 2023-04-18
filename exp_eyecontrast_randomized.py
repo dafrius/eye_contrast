@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jan 26 14:41:32 2022
+Created on Wed Apr 18 14:41:32 2022
 
 @author: canoluk
 """
@@ -201,7 +201,7 @@ for sex in ['men','wom']:
     # in that order
  
     
-# %% Trial order - Main
+# %% Trial order
 # Creating the trials with balanced number of conditions, orientations, image occurrences using the order above
 
 combos_new={'ssup': [] , 'ssinv': [],'sdup': [], 'sdinv': [],
@@ -252,33 +252,23 @@ for cond in combos_new.keys():
 # 6 miniblocks (one for each condition (s*up,d*up,iso*up,s*inv,d*inv,iso*inv))
 # 8 big blocks.
 
-
-block_length=48
-n_rep_in_block=block_length/len(combos_new)*2
-n_blocks=16
+color_text = float(exp_info['color_text'])
+miniblock_length=16
+n_miniblocks=6
+n_bigblocks=8
 blocks=[]
 tempblock=[]
 for ori in ['up','inv']:
     for cond in ['s','d','iso']:
-        for ctr in range(0,len(combos_new['ssup']),int(block_length/2)):
-            for i in range(int(block_length/2)):
+        for ctr in range(0,len(combos_new['ssup']),int(miniblock_length/2)):
+            for i in range(int(miniblock_length/2)):
                 tempblock.append(combos_new[f"{cond}s{ori}"][ctr+i])
                 tempblock.append(combos_new[f"{cond}d{ori}"][ctr+i])
             rnd.shuffle(tempblock)
             blocks.append(tempblock)
             tempblock=[]
 
-ssup x 8
-ssinv x 8
-sdup x 8 
-sdinv x 8
-isoup x 8
-isoinv x 8
-
-
-
-
-# we now created 16 blocks, with all conditions inside represented equally
+# we now created 48 miniblocks, in the correct order 
 # [same up * 8, diff up*8, iso up * 8, same inv * 8, diff inv * 8, iso inv * 8]
 # and we need to make big blocks (a block made of 6 miniblocks) with each 
 # condition once in it.
@@ -314,7 +304,7 @@ for i in final_blocks:
     for j,t in zip(i,sc2):
         j['staircase']=t
 
-# %% Trial order - Practice
+
 
 # Here we do the same operation, but this time with practice images
 
@@ -533,7 +523,6 @@ def block_break(block_no, totalblocks, timershort, timerlong):
 
 # %% We draw the text explaining what we will show
 
-color_text = float(exp_info['color_text'])
 instructions = visual.TextStim(win=win,
     pos=[0,7],
     wrapWidth=None, height=.65, font="Palatino Linotype", alignHoriz='center', color = [color_text,color_text,color_text])
