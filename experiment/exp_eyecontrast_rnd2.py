@@ -351,7 +351,7 @@ with open('pracs.csv', 'w',newline='') as csvfile:
 
 
 
-# %% Shortcut to make Psi Staircases
+# %% Function to make Psi Staircases
 def makePsi(nTrials=32):
 # Image visibility ranges between 2 and 40, logarithmically, 40 possibilities.
     staircase = PsiMarginal.Psi(stimRange=np.geomspace(2,40,40,endpoint=True),
