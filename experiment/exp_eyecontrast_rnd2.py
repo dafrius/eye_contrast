@@ -34,7 +34,7 @@ exp_info = {
         'gender': ('male', 'female'),
         'age':'',
         'left-handed':False,
-        'color_text': '.75',
+        'color_text': '-1',
         'screenwidth(cm)': '49',
         'screenresolutionhori(pixels)': '1920',
         'screenresolutionvert(pixels)': '1200',
@@ -56,7 +56,7 @@ exp_info['exp_name'] = exp_name
 instruction_dictionary = {'instructions1.text' : "Hello, \n\n Before starting, please make sure to find \n a comfortable position to do the task. \n\n Please adjust your chair so that the circle below is at your eye level. \n O \n\n Please try to stable \n as much as possible all along the experiment. \n \n \n Press SPACE key to continue.",
                           'instructions2.text': "In this experiment, two pictures of faces (or eyes) will be presented one after the other, successively. \n They will be displayed either UPRIGHT or INVERTED. \n YOUR TASK is to focus on the eye region (eyes and brows) in both faces \n and tell if they are exactly the same or different across faces. \n \n If the eyes are... \n IDENTICAL, press ""S"" key. \n DIFFERENT, press ""L"" key. \n\n Press a key to continue.",
                           'instructions3.text': "The task is quite difficult. \n We have manipulated the eyes and brows \n to contain varying levels of low contrast. \n You will see eyes in isolation, as well as inserted in various face contexts. \n\n Your task is to ignore the face context (when there is one), \n and only focus on the differences in the eye region (eyes and brows). \n\n\n It is important to keep your eyes fixated on the cross below throughout the experiment." ,
-                          'instructions3a.text': "It is important that you are as correct as possible.\n You will be informed of your performance\n all along the experiment. \n\n You should not perform worse than 65% correct. \n To help you reach this accuracy level, you are trained with the task in the following trials. \n\n Press a key to continue.",
+                          'instructions3a.text': "It is important that you are as correct as possible.\n You will be trained with the task in the following practice trials. \n\n Press SPACE key to continue.",
                           'instructions4.text': "IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L"" \n\n\n\n Place index fingers on these response keys before starting the experiment.\n Press SPACE key to start the practice.",
                           'prac1.text': "The task difficulty will increase now. Everything else about the task stays the same. \n\n IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L"" \n Press SPACE key to continue the practice.",
                           'prac2.text': "IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L""\n\n\n\n\n Press SPACE key to continue the practice.",
@@ -78,8 +78,9 @@ instruction_dictionary = {'instructions1.text' : "Hello, \n\n Before starting, p
 #     language = exp_info['language']
 #     instruction_dictionary=intoenglish(instruction_dictionary, language) 
 
+
 # %% Monitor setup 
-mon = monitors.Monitor('Vpixx040821') #Pulls out photometer calibration settings by name.  
+mon = monitors.Monitor('VPixx020523') #Pulls out photometer calibration settings by name.  
 mon.setWidth(float(exp_info['screenwidth(cm)'])) # Cm width
 mon.setDistance(57)
 horipix = exp_info['screenresolutionhori(pixels)']
@@ -90,7 +91,7 @@ framelength = 1000/(float(framerate))
 mon.setSizePix(scrsize)
 
 # how many rgb values do we lower the brightness
-reduce=50
+reduce=0
 
 # the candela / metersquare value
 cdm2 = (128-reduce)/255*100
@@ -101,7 +102,7 @@ win = visual.Window(monitor = mon,
                     colorSpace = "rgb255",
                     color= [128-reduce, 128-reduce, 128-reduce],
                     units='deg',
-                    fullscr=True,
+                    fullscr=False,
                     allowStencil=True,
                     screen=1)
 # Hide the cursor when the window is opened
@@ -120,19 +121,13 @@ FixFrame, IntFrame, ImFrame, MaskFrame = int(FixT/framelength), int(IntT/framele
 
 
 # %% Fixation
-fixation = visual.TextStim(
-    win=win,
-    pos=[0,.75],
-    wrapWidth=None,
-    height=1,
-    font="Palatino Linotype",
-    alignHoriz='center',
-    alignVert='center',
-    color= "black",
-    bold=True
+fixation = visual.ShapeStim(win, 
+    vertices=((0, -.2), (0, .2), (0,0), (-.2,0), (.2, 0)),
+    lineWidth=2,
+    closeShape=False,
+    lineColor="black"
     )
-fixation.text = """
-+"""
+
 
 # visual.ShapeStim(win, 
 #     vertices=((0, -0.3), (0, 0.3), (0,0), (-0.3,0), (0.3, 0)),
@@ -142,6 +137,7 @@ fixation.text = """
 #     )
 
 # %% Eye-Face Matching
+
 # Contexts and Eyes to be used, these are arranged in a specific order 
 # depending on which eye fits on which face perfectly, and which are the more 
 # similar looking eyes as measured by pixel-wise correlations
@@ -386,6 +382,7 @@ conginv2=makePsi()
 incinv2=makePsi()
 isoinv2=makePsi()
 
+
 # %% Occlude function
 def occlude(image, percentage, thickness=10):
     # we take the contrast and luminance of the eye region, excluding the background
@@ -528,13 +525,7 @@ instructions.pos=[0,-7]
 instructions.draw()  
 
 
-fixcross = visual.TextStim(win=win,
-    pos=[0,.75], wrapWidth=None, height=1, font="Palatino Linotype", alignHoriz='center', alignVert='center',
-    color= "black",bold=True)
-
-fixcross.text = """
-+"""
-fixcross.draw()
+fixation.draw()
 win.flip()
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 win.flip()
@@ -542,7 +533,7 @@ win.flip()
 instructions.text= instruction_dictionary['instructions4.text']
 instructions.pos=[0,0]
 instructions.draw()  
-fixcross.draw()
+fixation.draw()
 win.flip()
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 win.flip()
@@ -711,6 +702,7 @@ for pracblock in practice:
             elif 'p' in keys:
                 pracDone=1
                 f2.close()
+                win.flip()
                 break
         # if 'p' key is pressed, it skips the practice round
             
@@ -731,7 +723,7 @@ instructions.pos=[0,0]
 instructions.draw()
 win.flip()
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
-
+win.flip()
 
 # %% Trial loop
 i=0
