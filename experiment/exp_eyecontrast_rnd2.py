@@ -55,9 +55,9 @@ exp_info['exp_name'] = exp_name
 #%% Dictionary with all the instructions
 instruction_dictionary = {'instructions1.text' : "Hello, \n\n Before starting, please make sure to find \n a comfortable position to do the task. \n\n Please adjust your chair so that the circle below is at your eye level. \n O \n\n Please try to stable \n as much as possible all along the experiment. \n \n \n Press SPACE key to continue.",
                           'instructions2.text': "In this experiment, two pictures of faces (or eyes) will be presented one after the other, successively. \n They will be displayed either UPRIGHT or INVERTED. \n YOUR TASK is to focus on the eye region (eyes and brows) in both faces \n and tell if they are exactly the same or different across faces. \n \n If the eyes are... \n IDENTICAL, press ""S"" key. \n DIFFERENT, press ""L"" key. \n\n Press a key to continue.",
-                          'instructions3.text': "The task is quite difficult. \n We have manipulated the eyes and brows \n to contain varying levels of low contrast. \n You will see eyes in isolation, as well as inserted in various face contexts. \n\n Your task is to ignore the face context (when there is one), \n and only focus on the differences in the eye region (eyes and brows). \n\n\n It is important to keep your eyes fixated on the cross below throughout the experiment." ,
-                          'instructions3a.text': "It is important that you are as correct as possible.\n You will be trained with the task in the following practice trials. \n\n Press SPACE key to continue.",
-                          'instructions4.text': "IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L"" \n\n\n\n Place index fingers on these response keys before starting the experiment.\n Press SPACE key to start the practice.",
+                          'instructions3.text': "The task is quite difficult. \n We have manipulated the eyes and brows \n to contain varying levels of low contrast. \n You will see eyes in isolation, as well as inserted in various face contexts. \n\n\n\n\n\n Your task is to ignore the face context (when there is one), \n and only focus on the differences in the eye region (eyes and brows). \n\n\n It is important to keep your eyes fixated on the cross throughout the experiment." ,
+                          'instructions4.text': "It is important that you are as FAST and CORRECT as possible.\n\n\n\n\n You will be trained with the task in the following practice trials. \n Press SPACE key to continue.",
+                          'instructions5.text': "IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L"" \n\n\n\n Place index fingers on these response keys before starting the experiment.\n Press SPACE key to start the practice.",
                           'prac1.text': "The task difficulty will increase now. Everything else about the task stays the same. \n\n IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L"" \n Press SPACE key to continue the practice.",
                           'prac2.text': "IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L""\n\n\n\n\n Press SPACE key to continue the practice.",
                           'pracfinal.text': "Congratulations, you passed the practice!\n You will now start the experiment. \n\n Press SPACE key to start.",
@@ -102,7 +102,7 @@ win = visual.Window(monitor = mon,
                     colorSpace = "rgb255",
                     color= [128-reduce, 128-reduce, 128-reduce],
                     units='deg',
-                    fullscr=False,
+                    fullscr=True,
                     allowStencil=True,
                     screen=1)
 # Hide the cursor when the window is opened
@@ -409,10 +409,11 @@ def occlude(image, percentage, thickness=10):
     occA[157:337, :]=(100-percentage)/100*fullAlpha
     #we blend them, merge into a single image
     blend=(srcImg*(srcA/255))+(occImg*(occA/255))
-    blend[157:157+thickness,:]=90
-    blend[337:337+thickness,:]=90
-    blend[157:337+thickness,0:thickness]=90
-    blend[157:337+thickness,600-thickness:600]=90
+    occ_color=142
+    blend[157:157+thickness,:]=occ_color
+    blend[337:337+thickness,:]=occ_color
+    blend[157:337+thickness,0:thickness]=occ_color
+    blend[157:337+thickness,600-thickness:600]=occ_color
     return blend
 
 
@@ -516,13 +517,8 @@ win.flip()
  
 # Third instruction screen =================================================================================
 instructions.text= instruction_dictionary['instructions3.text']
-instructions.pos=[0,7]
+instructions.pos=[0,0]
 instructions.draw()
-
-
-instructions.text= instruction_dictionary['instructions3a.text']
-instructions.pos=[0,-7]
-instructions.draw()  
 
 
 fixation.draw()
@@ -530,7 +526,17 @@ win.flip()
 keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
 win.flip()
 
+# Fourth instruction screen
+
 instructions.text= instruction_dictionary['instructions4.text']
+instructions.pos=[0,0]
+instructions.draw()  
+fixation.draw()
+win.flip()
+keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
+win.flip()
+
+instructions.text= instruction_dictionary['instructions5.text']
 instructions.pos=[0,0]
 instructions.draw()  
 fixation.draw()
