@@ -18,6 +18,9 @@ import csv
 #import translators as ts
 
 
+
+
+
 # %% Image Paths
 stimPath="exp_imgs" 
 maskPath="masks"
@@ -415,6 +418,24 @@ def occlude(image, percentage, thickness=10):
     blend[157:337+thickness,600-thickness:600]=90
     return blend
 
+# %% Image normalization
+
+def equalise_im(loaded_image):
+    if np.ptp(loaded_image) == 0:
+        loaded_image = (loaded_image - np.min(loaded_image))
+    else:
+        #normalises a images loaded as a NP array 
+        equalised = normalise_im(loaded_image)
+        #loaded_image = (loaded_image*LC[1]) + LC[0]   # desired luminance and contrast
+        #but image needs to be equalised between [min -1, max +1]
+        #loaded_image = 2.*(loaded_image - np.min(loaded_image)) / np.ptp(loaded_image)-1 # equalise image
+        loaded_image = (equalised - np.min(equalised)) / np.ptp(equalised) # equalise image
+    return loaded_image
+
+def normalise_im(loaded_image):
+    normalised = (loaded_image - np.min(loaded_image)) / np.ptp(loaded_image)
+    return normalised
+
 
 # %% Final arrangements before showing things
 # drawing bitmaps for image 1, image 2, and mask
@@ -553,6 +574,10 @@ aperture = visual.Aperture(
      units='deg', size=(7,2.25), pos=(0,0),
      shape='square')
 
+def contrast_fix(image):
+    fixed = ((image - image.min()) / (image.max()-image.min())) * 255
+    return fixed
+
 def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, reduce):
     # we load the array reduce the brightness by a given value in "reduce" as input
     im1=np.array(Image.open(os.path.join(path,im1name)))
@@ -563,13 +588,19 @@ def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, re
     mask=(np.array(Image.open(os.path.join(maskpath,maskname))))/256
     mask=mask.astype(np.int16)-reduce
     
+    #im1=contrast_fix(im1)
     im1us=occlude(im1,visibility)
     im1=(im1us-127.5)/127.5
+    #im2=contrast_fix(im2)
     im2us=occlude(im2,visibility)
     im2=(im2us-127.5)/127.5
+    #mask=contrast_fix(mask)
     mask_occluded=occlude(mask, visibility)
     maskfinal=(mask_occluded-127.5)/127.5
+    
+    
 
+    
     bitmap1.setOri(ori)
     bitmap2.setOri(ori)
     bitmap_mask.setOri(ori)
@@ -651,7 +682,7 @@ for pracblock in practice:
             instructions.text= instruction_dictionary['prac1.text']
             instructions.pos=[0,-3]
             instructions.draw()
-            fixcross.draw()
+            fixation.draw()
             win.flip()
             keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
             block_break(block_no,tot_prac_blocks,int(tot_prac_blocks/2), 7,20)
@@ -663,7 +694,7 @@ for pracblock in practice:
             instructions.text= instruction_dictionary['prac2.text']
             instructions.pos=[0,0]
             instructions.draw()
-            fixcross.draw()
+            fixation.draw()
             win.flip()
             keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
             pracDone=1
