@@ -117,8 +117,8 @@ IBW=3 #the wait between the blocks
 
 ITI = [.7, .8, .9, 1, 1.1, 1.2] # inter-trial interval
 # Fixation, Interval, Target, Mask times in ms
-#FixT, IntT, TargetT, MaskT = 500, 500, 500, 200
-FixT, IntT, TargetT, MaskT = 0, 0, 0, 0
+FixT, IntT, TargetT, MaskT = 500, 500, 500, 200
+#FixT, IntT, TargetT, MaskT = 0, 0, 0, 0
 
 # Fixation, Interval, Target, Mask times in terms of # of frames
 FixFrame, IntFrame, ImFrame, MaskFrame = int(FixT/framelength), int(IntT/framelength), int(TargetT/framelength), int(MaskT/framelength)
