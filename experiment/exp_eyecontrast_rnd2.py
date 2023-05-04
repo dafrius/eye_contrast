@@ -55,12 +55,13 @@ if dlg.OK == False:
 exp_info['date'] = data.getDateStr()
 exp_info['exp_name'] = exp_name
   
-#%% Dictionary with all the instructions
+# %% Dictionary with all the instructions
 instruction_dictionary = {'instructions1.text' : "Hello, \n\n Before starting, please make sure to find \n a comfortable position to do the task. \n\n Please adjust your chair so that the circle below is at your eye level. \n O \n\n Please try to stable \n as much as possible all along the experiment. \n \n \n Press SPACE key to continue.",
                           'instructions2.text': "In this experiment, two pictures of faces (or eyes) will be presented one after the other, successively. \n They will be displayed either UPRIGHT or INVERTED. \n YOUR TASK is to focus on the eye region (eyes and brows) in both faces \n and tell if they are exactly the same or different across faces. \n \n If the eyes are... \n IDENTICAL, press ""S"" key. \n DIFFERENT, press ""L"" key. \n\n Press a key to continue.",
                           'instructions3.text': "The task is quite difficult. \n We have manipulated the eyes and brows \n to contain varying levels of low contrast. \n You will see eyes in isolation, as well as inserted in various face contexts. \n\n\n\n\n\n Your task is to ignore the face context (when there is one), \n and only focus on the differences in the eye region (eyes and brows). \n\n\n It is important to keep your eyes fixated on the cross throughout the experiment." ,
                           'instructions4.text': "It is important that you are as FAST and CORRECT as possible.\n\n\n\n\n You will be trained with the task in the following practice trials. \n Press SPACE key to continue.",
                           'instructions5.text': "IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L"" \n\n\n\n Place index fingers on these response keys before starting the experiment.\n Press SPACE key to start the practice.",
+                          'presskey.text': "Press SPACE key to continue.",
                           'prac1.text': "The task difficulty will increase now. Everything else about the task stays the same. \n\n IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L"" \n Press SPACE key to continue the practice.",
                           'prac2.text': "IDENTICAL eyes = ""S"" \n DIFFERENT eyes = ""L""\n\n\n\n\n Press SPACE key to continue the practice.",
                           'pracfinal.text': "Congratulations, you passed the practice!\n You will now start the experiment. \n\n Press SPACE key to start.",
@@ -116,8 +117,8 @@ IBW=3 #the wait between the blocks
 
 ITI = [.7, .8, .9, 1, 1.1, 1.2] # inter-trial interval
 # Fixation, Interval, Target, Mask times in ms
-FixT, IntT, TargetT, MaskT = 500, 500, 500, 200
-#FixT, IntT, TargetT, MaskT = 0, 0, 0, 0
+#FixT, IntT, TargetT, MaskT = 500, 500, 500, 200
+FixT, IntT, TargetT, MaskT = 0, 0, 0, 0
 
 # Fixation, Interval, Target, Mask times in terms of # of frames
 FixFrame, IntFrame, ImFrame, MaskFrame = int(FixT/framelength), int(IntT/framelength), int(TargetT/framelength), int(MaskT/framelength)
@@ -419,24 +420,6 @@ def occlude(image, percentage, thickness=10):
     blend[157:337+thickness,600-thickness:600]=occ_color
     return blend
 
-# %% Image normalization
-
-def equalise_im(loaded_image):
-    if np.ptp(loaded_image) == 0:
-        loaded_image = (loaded_image - np.min(loaded_image))
-    else:
-        #normalises a images loaded as a NP array 
-        equalised = normalise_im(loaded_image)
-        #loaded_image = (loaded_image*LC[1]) + LC[0]   # desired luminance and contrast
-        #but image needs to be equalised between [min -1, max +1]
-        #loaded_image = 2.*(loaded_image - np.min(loaded_image)) / np.ptp(loaded_image)-1 # equalise image
-        loaded_image = (equalised - np.min(equalised)) / np.ptp(equalised) # equalise image
-    return loaded_image
-
-def normalise_im(loaded_image):
-    normalised = (loaded_image - np.min(loaded_image)) / np.ptp(loaded_image)
-    return normalised
-
 
 # %% Final arrangements before showing things
 # drawing bitmaps for image 1, image 2, and mask
@@ -492,6 +475,7 @@ def block_break(block_no, totalblocks, mod, timershort, timerlong):
         timer=timerlong
         # timer=0
     blocktext.text= instruction_dictionary['blocktext1.text'] + str(timer) + instruction_dictionary['blocktext2.text'] + str(block_no) + """/""" + str(totalblocks)
+
     for time in range(timer):
         timer-=1
         blocktext.draw()
@@ -580,10 +564,6 @@ aperture = visual.Aperture(
      units='deg', size=(7,2.25), pos=(0,0),
      shape='square')
 
-def contrast_fix(image):
-    fixed = ((image - image.min()) / (image.max()-image.min())) * 255
-    return fixed
-
 def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, reduce):
     # we load the array reduce the brightness by a given value in "reduce" as input
     im1=np.array(Image.open(os.path.join(path,im1name)))
@@ -594,18 +574,12 @@ def trialsequence(path, maskpath, im1name,im2name, maskname, visibility, ori, re
     mask=(np.array(Image.open(os.path.join(maskpath,maskname))))/256
     mask=mask.astype(np.int16)-reduce
     
-    #im1=contrast_fix(im1)
     im1us=occlude(im1,visibility)
     im1=(im1us-127.5)/127.5
-    #im2=contrast_fix(im2)
     im2us=occlude(im2,visibility)
     im2=(im2us-127.5)/127.5
-    #mask=contrast_fix(mask)
     mask_occluded=occlude(mask, visibility)
     maskfinal=(mask_occluded-127.5)/127.5
-    
-    
-
     
     bitmap1.setOri(ori)
     bitmap2.setOri(ori)
@@ -691,6 +665,7 @@ for pracblock in practice:
             fixation.draw()
             win.flip()
             keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
+            win.flip()
             block_break(block_no,tot_prac_blocks,int(tot_prac_blocks/2), 7,20)
         elif block_no == tot_prac_blocks:
             block_break(block_no,tot_prac_blocks,int(tot_prac_blocks/2), 7,20)
@@ -703,9 +678,19 @@ for pracblock in practice:
             fixation.draw()
             win.flip()
             keys = event.waitKeys(keyList=['space','escape'])#core.wait(.1)
+            win.flip()
             pracDone=1
             break
         else:
+            instructions.text= 'Your accuracy from this block is : '+ str(round(acc_perc*100,2)) + '%' 
+            instructions.pos = [0,0]
+            instructions.draw()
+            instructions.text= instruction_dictionary['presskey.text']
+            instructions.pos = [0,-3]
+            instructions.draw()
+            win.flip()
+            keys = event.waitKeys(keyList=['space','escape'])
+            win.flip()
             block_break(block_no,tot_prac_blocks,int(tot_prac_blocks/2),7,20)
 
 
