@@ -772,7 +772,7 @@ for block in blocks:
     for trial in block:
         if trial['ori']=='up':
             ori=180
-            if trial['cond'][0] == 'ss' or trial['cond'][0] == 'dd':
+            if trial['cond'] == 'ss' or trial['cond'] == 'dd':
                 while congup.xCurrent == None or congup2.xCurrent == None:
                     pass # hang in this loop until the psi calculation has finished
                 if trial['staircase']==1:
@@ -785,7 +785,7 @@ for block in blocks:
                     visibility = congup2.xCurrent
                     if ctr_congup2 % 8 == 0:
                         visibility = visibility+10
-            elif trial['cond'][0] == 'ds' or trial['cond'][0] == 'sd':
+            elif trial['cond'] == 'ds' or trial['cond'] == 'sd':
                 while incup.xCurrent == None or incup2.xCurrent == None:
                     pass
                 if trial['staircase']==1:
@@ -813,7 +813,7 @@ for block in blocks:
                         visibility = visibility+10
         else:
             ori=0
-            if trial['cond'][0] == 'ss' or trial['cond'][0] == 'dd':
+            if trial['cond'] == 'ss' or trial['cond'] == 'dd':
                 while conginv.xCurrent == None or conginv2.xCurrent == None:
                     pass # hang in this loop until the psi calculation has finished
                 if trial['staircase']==1:
@@ -826,7 +826,7 @@ for block in blocks:
                     visibility = conginv2.xCurrent
                     if ctr_conginv2 % 8 == 0:
                         visibility = visibility+10
-            elif trial['cond'][0] == 'ds' or trial['cond'][0] == 'sd':
+            elif trial['cond'] == 'ds' or trial['cond'] == 'sd':
                 while incinv.xCurrent == None or incinv2.xCurrent == None:
                     pass
                 if trial['staircase']==1:
