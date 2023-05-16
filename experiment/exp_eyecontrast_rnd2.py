@@ -11,15 +11,10 @@ Created on Tue Apr 18 15:04:39 2023
 import os
 import numpy as np
 import numpy.random as rnd
-from psychopy import visual, event, core, gui, data, monitors, tools
+from psychopy import visual, event, core, gui, data, monitors
 from PIL import Image
 import PsiMarginal
 import csv
-#import translators as ts
-
-
-
-
 
 # %% Image Paths
 stimPath="exp_imgs" 
@@ -28,11 +23,10 @@ dataPath="data"
 pracPath="prac_imgs"
 pracmaskPath="prac_scrambles"
 
-# Subject Info
+# %% Subject Info / Exp Settings
 
 exp_name = 'Eye Contrast'
 exp_info = {
-        'language' : ('fr','en'),
         'participant': '',
         'gender': ('male', 'female'),
         'age':'',
@@ -42,7 +36,9 @@ exp_info = {
         'screenresolutionhori(pixels)': '1920',
         'screenresolutionvert(pixels)': '1200',
         'refreshrate(hz)': '120',
-        'prac_length': '6'}
+        'prac_length': '6',
+        'test': ('no','yes'),
+        'trial order': ('random','blocks_context','blocks_congruency')}
 
 dlg = gui.DlgFromDict(dictionary=exp_info, title=exp_name)
     
@@ -68,19 +64,6 @@ instruction_dictionary = {'instructions1.text' : "Hello, \n\n Before starting, p
                           'timertext.text':"Ready",
                           'blocktext1.text': "Please take a short break before you start the next block. \n\nYou can press SPACE after ",
                           'blocktext2.text':" seconds to continue when you are ready. \n\n Block:"}
-
-# %% Creation of a function to translate the instructions
-# def intoenglish(input_dictionary,language): 
-#     instruction_dictionary_english={} 
-#     for k,phrase in input_dictionary.items():
-#        translater = ts.google(phrase, from_language='fr', to_language=language)
-#        instruction_dictionary_english[k] = translater
-#     return instruction_dictionary_english
-
-# #Now we translate the instruction if required
-# if exp_info['language']!='fr':
-#     language = exp_info['language']
-#     instruction_dictionary=intoenglish(instruction_dictionary, language) 
 
 
 # %% Monitor setup 
@@ -115,11 +98,13 @@ win.mouseVisible=False
 # %% Timing
 IBW=3 #the wait between the blocks
 
-ITI = [.7, .8, .9, 1, 1.1, 1.2] # inter-trial interval
-# Fixation, Interval, Target, Mask times in ms
-FixT, IntT, TargetT, MaskT = 500, 500, 500, 200
-#FixT, IntT, TargetT, MaskT = 0, 0, 0, 0
-
+if exp_info['test'] == 'no':
+    ITI = [.7, .8, .9, 1, 1.1, 1.2] # inter-trial interval
+    FixT, IntT, TargetT, MaskT = 500, 500, 500, 200
+else:
+    FixT, IntT, TargetT, MaskT = 0, 0, 0, 0
+    ITI = [0]
+    
 # Fixation, Interval, Target, Mask times in terms of # of frames
 FixFrame, IntFrame, ImFrame, MaskFrame = int(FixT/framelength), int(IntT/framelength), int(TargetT/framelength), int(MaskT/framelength)
 
@@ -131,14 +116,6 @@ fixation = visual.ShapeStim(win,
     closeShape=False,
     lineColor="black"
     )
-
-
-# visual.ShapeStim(win, 
-#     vertices=((0, -0.3), (0, 0.3), (0,0), (-0.3,0), (0.3, 0)),
-#     lineWidth=3,
-#     closeShape=False,
-#     lineColor="black"
-#     )
 
 # %% Eye-Face Matching
 
@@ -257,25 +234,62 @@ for cond in combos_new.keys():
 # creating blocks with equal numbers of trials and corresponding staircases
 # for each condition
 
-blocks=[]
-tempblock=[]
-n_blocks=16 
-block_length=48 # Should be multipliers of 12
-repetition=block_length/len(combos_new.keys()) # Should be a
-ctr=0
-
-for blockno in range(n_blocks):
-    for rep in range(int(repetition)):
-        for cond in combos_new.keys():
-            if rep < repetition/2:
-                combos_new[f"{cond}"][int(ctr)+rep]['staircase']=1
-            else:
-                combos_new[f"{cond}"][int(ctr)+rep]['staircase']=2
-            tempblock.append(combos_new[f"{cond}"][int(ctr)+rep])
-    ctr=ctr+repetition    
-    rnd.shuffle(tempblock)
-    blocks.append(tempblock)
+if exp_info['trial order'] == 'random':
+    blocks=[]
     tempblock=[]
+    n_blocks=16 
+    block_length=48 # Should be multipliers of 12
+    repetition=block_length/len(combos_new.keys()) # Should be a
+    ctr=0
+    
+    for blockno in range(n_blocks):
+        for rep in range(int(repetition)):
+            for cond in combos_new.keys():
+                if rep < repetition/2:
+                    combos_new[f"{cond}"][int(ctr)+rep]['staircase']=1
+                else:
+                    combos_new[f"{cond}"][int(ctr)+rep]['staircase']=2
+                tempblock.append(combos_new[f"{cond}"][int(ctr)+rep])
+        ctr=ctr+repetition    
+        rnd.shuffle(tempblock)
+        blocks.append(tempblock)
+        tempblock=[]
+elif exp_info['trial order'] == 'blocks_context':
+    miniblock_length=16
+    n_miniblocks=6
+    n_bigblocks=8
+    blocks=[]
+    tempblock=[]
+    
+    for ori in ['up','inv']:
+        for cond in ['s','d','iso']:
+            for ctr in range(0,len(combos_new['ssup']),int(miniblock_length/2)):
+                for i in range(int(miniblock_length/2)):
+                    if i < int(miniblock_length/4):
+                        combos_new[f"{cond}s{ori}"][ctr+i]['staircase']=1
+                        combos_new[f"{cond}d{ori}"][ctr+i]['staircase']=1
+                    else:
+                        combos_new[f"{cond}s{ori}"][ctr+i]['staircase']=2
+                        combos_new[f"{cond}d{ori}"][ctr+i]['staircase']=2
+                    tempblock.append(combos_new[f"{cond}s{ori}"][ctr+i])
+                    tempblock.append(combos_new[f"{cond}d{ori}"][ctr+i])
+                rnd.shuffle(tempblock)
+                blocks.append(tempblock)
+                tempblock=[]
+    blocks2=[]
+    bigblock=[]
+    for bigs in range(n_bigblocks):
+        for block in range(0,len(blocks),n_bigblocks):
+            bigblock.append(blocks[block+bigs])
+        rnd.shuffle(bigblock)
+        blocks2.append(bigblock)
+        bigblock=[]    
+    final_blocks=[]
+    for i in range(len(blocks2)):
+        for j in range(len(blocks2[i])):
+            final_blocks.append(blocks2[i][j])
+
+
     
 # This is to write them in a csv file for checking the balances in rstudio later
 # fieldnames=list(blocks[0][0].keys())
@@ -351,7 +365,7 @@ with open('pracs.csv', 'w',newline='') as csvfile:
 
 
 
-# %% Function to make Psi Staircases
+# %% Psi Staircases
 def makePsi(nTrials=32):
 # Image visibility ranges between 2 and 40, logarithmically, 40 possibilities.
     staircase = PsiMarginal.Psi(stimRange=np.geomspace(2,40,40,endpoint=True),
@@ -861,14 +875,14 @@ for block in blocks:
 
 
         if ori==180:
-            if trial['cond'][0] == 'ss' or trial['cond'][0] == 'dd':
+            if trial['cond'] == 'ss' or trial['cond'] == 'dd':
                 if trial['staircase'] == 1:
                     if ctr_congup1 % 8 != 0:
                         congup.addData(acc)
                 else:
                     if ctr_congup2 % 8 != 0:
                         congup2.addData(acc)
-            elif trial['cond'][0] == 'ds' or trial['cond'][0] == 'sd':
+            elif trial['cond'] == 'ds' or trial['cond'] == 'sd':
                 if trial['staircase'] == 1:
                     if ctr_incup1 % 8 != 0:
                         incup.addData(acc)
@@ -883,14 +897,14 @@ for block in blocks:
                     if ctr_isoup2 % 8 != 0:
                         isoup2.addData(acc)
         else:
-            if trial['cond'][0] == 'ss' or trial['cond'][0] == 'dd':
+            if trial['cond'] == 'ss' or trial['cond'] == 'dd':
                 if trial['staircase']==1:
                     if ctr_conginv1 % 8 != 0:
                         conginv.addData(acc)
                 else:
                     if ctr_conginv2 % 8 != 0:
                         conginv2.addData(acc)
-            elif trial['cond'][0] == 'ds' or trial['cond'][0] == 'sd':
+            elif trial['cond'] == 'ds' or trial['cond'] == 'sd':
                 if trial['staircase']==1:
                     if ctr_incinv1 % 8 != 0:
                         incinv.addData(acc)
