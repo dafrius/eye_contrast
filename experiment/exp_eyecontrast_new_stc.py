@@ -791,7 +791,7 @@ for block in blocks:
                     elif ctr_congup1 % 8 == 0 and ctr_congup1 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
                 else:
                     ctr_congup2+=1
                     visibility = congup2.xCurrent
@@ -800,7 +800,7 @@ for block in blocks:
                     elif ctr_congup2 % 8 == 0 and ctr_congup2 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
             elif trial['cond'] == 'ds' or trial['cond'] == 'sd':
                 while incup.xCurrent == None or incup2.xCurrent == None:
                     pass
@@ -812,7 +812,7 @@ for block in blocks:
                     elif ctr_incup1 % 8 == 0 and ctr_incup1 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
                 else:
                     ctr_incup2+=1
                     visibility = incup2.xCurrent
@@ -821,7 +821,7 @@ for block in blocks:
                     elif ctr_incup2 % 8 == 0 and ctr_incup2 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
             elif trial['cond'][0] == 'i':
                 while isoup.xCurrent == None or isoup2.xCurrent == None:
                     pass
@@ -833,7 +833,7 @@ for block in blocks:
                     elif ctr_isoup1 % 8 == 0 and ctr_isoup1 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
                 else:
                     ctr_isoup2+=1
                     visibility = isoup2.xCurrent
@@ -842,7 +842,7 @@ for block in blocks:
                     elif ctr_isoup2 % 8 == 0 and ctr_isoup2 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
         else:
             ori=0
             if trial['cond'] == 'ss' or trial['cond'] == 'dd':
@@ -856,7 +856,7 @@ for block in blocks:
                     elif ctr_conginv1 % 8 == 0 and ctr_conginv1 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
                 else:
                     ctr_conginv2+=1
                     visibility = conginv2.xCurrent
@@ -865,7 +865,7 @@ for block in blocks:
                     elif ctr_conginv2 % 8 == 0 and ctr_conginv2 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
             elif trial['cond'] == 'ds' or trial['cond'] == 'sd':
                 while incinv.xCurrent == None or incinv2.xCurrent == None:
                     pass
@@ -877,7 +877,7 @@ for block in blocks:
                     elif ctr_incinv1 % 8 == 0 and ctr_incinv1 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
                 else:
                     ctr_incinv2+=1
                     visibility = incinv2.xCurrent
@@ -886,7 +886,7 @@ for block in blocks:
                     elif ctr_incinv2 % 8 == 0 and ctr_incinv2 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
             elif trial['cond'][0] == 'i':
                 while isoinv.xCurrent == None or isoinv2.xCurrent == None:
                     pass
@@ -898,7 +898,7 @@ for block in blocks:
                     elif ctr_isoinv1 % 8 == 0 and ctr_isoinv1 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
                 else:
                     ctr_isoinv2+=1
                     visibility = isoinv2.xCurrent
@@ -907,7 +907,7 @@ for block in blocks:
                     elif ctr_isoinv2 % 8 == 0 and ctr_isoinv2 % 16 == 0:
                         visibility = visibility-7
                         if visibility < 0:
-                            visibility = 0.01
+                            visibility = 1.5
             
 
         keys, rt = trialsequence(stimPath,maskPath, trial['im1name'], trial['im2name'], trial['mask'], visibility, ori, reduce)
