@@ -787,39 +787,63 @@ for block in blocks:
                 if trial['staircase']==1:
                     ctr_congup1+=1
                     visibility = congup.xCurrent
-                    if ctr_congup1 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_congup1 % 8 == 0 and ctr_congup1 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_congup1 % 8 == 0 and ctr_congup1 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
                 else:
                     ctr_congup2+=1
                     visibility = congup2.xCurrent
-                    if ctr_congup2 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_congup2 % 8 == 0 and ctr_congup2 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_congup2 % 8 == 0 and ctr_congup2 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
             elif trial['cond'] == 'ds' or trial['cond'] == 'sd':
                 while incup.xCurrent == None or incup2.xCurrent == None:
                     pass
                 if trial['staircase']==1:
                     ctr_incup1+=1
                     visibility = incup.xCurrent
-                    if ctr_incup1 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_incup1 % 8 == 0 and ctr_incup1 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_incup1 % 8 == 0 and ctr_incup1 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
                 else:
                     ctr_incup2+=1
                     visibility = incup2.xCurrent
-                    if ctr_incup2 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_incup2 % 8 == 0 and ctr_incup2 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_incup2 % 8 == 0 and ctr_incup2 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
             elif trial['cond'][0] == 'i':
                 while isoup.xCurrent == None or isoup2.xCurrent == None:
                     pass
                 if trial['staircase']==1:
                     ctr_isoup1+=1
                     visibility = isoup.xCurrent
-                    if ctr_isoup1 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_isoup1 % 8 == 0 and ctr_isoup1 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_isoup1 % 8 == 0 and ctr_isoup1 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
                 else:
                     ctr_isoup2+=1
                     visibility = isoup2.xCurrent
-                    if ctr_isoup2 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_isoup2 % 8 == 0 and ctr_isoup2 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_isoup2 % 8 == 0 and ctr_isoup2 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
         else:
             ori=0
             if trial['cond'] == 'ss' or trial['cond'] == 'dd':
@@ -828,39 +852,63 @@ for block in blocks:
                 if trial['staircase']==1:
                     ctr_conginv1+=1
                     visibility = conginv.xCurrent
-                    if ctr_conginv1 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_conginv1 % 8 == 0 and ctr_conginv1 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_conginv1 % 8 == 0 and ctr_conginv1 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
                 else:
                     ctr_conginv2+=1
                     visibility = conginv2.xCurrent
-                    if ctr_conginv2 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_conginv2 % 8 == 0 and ctr_conginv2 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_conginv2 % 8 == 0 and ctr_conginv2 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
             elif trial['cond'] == 'ds' or trial['cond'] == 'sd':
                 while incinv.xCurrent == None or incinv2.xCurrent == None:
                     pass
                 if trial['staircase']==1:
                     ctr_incinv1+=1
                     visibility = incinv.xCurrent
-                    if ctr_incinv1 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_incinv1 % 8 == 0 and ctr_incinv1 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_incinv1 % 8 == 0 and ctr_incinv1 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
                 else:
                     ctr_incinv2+=1
                     visibility = incinv2.xCurrent
-                    if ctr_incinv2 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_incinv2 % 8 == 0 and ctr_incinv2 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_incinv2 % 8 == 0 and ctr_incinv2 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
             elif trial['cond'][0] == 'i':
                 while isoinv.xCurrent == None or isoinv2.xCurrent == None:
                     pass
                 if trial['staircase']==1:
                     ctr_isoinv1+=1
                     visibility = isoinv.xCurrent
-                    if ctr_isoinv1 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_isoinv1 % 8 == 0 and ctr_isoinv1 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_isoinv1 % 8 == 0 and ctr_isoinv1 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
                 else:
                     ctr_isoinv2+=1
                     visibility = isoinv2.xCurrent
-                    if ctr_isoinv2 % 8 == 0:
-                        visibility = visibility+10
+                    if ctr_isoinv2 % 8 == 0 and ctr_isoinv2 % 16 != 0:
+                        visibility = visibility+7
+                    elif ctr_isoinv2 % 8 == 0 and ctr_isoinv2 % 16 == 0:
+                        visibility = visibility-7
+                        if visibility < 0:
+                            visibility = 0.01
             
 
         keys, rt = trialsequence(stimPath,maskPath, trial['im1name'], trial['im2name'], trial['mask'], visibility, ori, reduce)
