@@ -368,12 +368,11 @@ with open('pracs.csv', 'w',newline='') as csvfile:
 # %% Psi Staircases
 def makePsi(nTrials=32):
 # Image visibility ranges between 2 and 40, logarithmically, 40 possibilities.
-    sigma = np.linspace(0.05, 1, 21)
     staircase = PsiMarginal.Psi(stimRange=np.geomspace(2,40,40,endpoint=True),
             Pfunction='cGauss', nTrials=nTrials,
-            threshold=np.geomspace(2,25,25, endpoint=True), #thresholdPrior=('gamma',3,35),
-            thresholdPrior=('normal',15,10), #slope=5,#
-            slope=sigma,slopePrior=('gamma',4,4),# slopePrior=('gamma',2,0.3), # with these values, the contrast starts at ~15 and can end up at ~2 in 32 trials.
+            threshold=np.geomspace(0.1,40,25, endpoint=True), #thresholdPrior=('gamma',3,35),
+            thresholdPrior=('normal',0.1,80), #slope=5,#
+            slope=4,slopePrior=('gamma',4,2),# slopePrior=('gamma',2,0.3), # with these values, the contrast starts at ~15 and can end up at ~2 in 32 trials.
             guessRate=0.5,
             lapseRate=0.05, #lapsePrior=('beta',0.05,0.1), 
             lapsePrior = ('beta', 2,20),
