@@ -36,7 +36,7 @@ exp_info = {
         'screenresolutionhori(pixels)': '1920',
         'screenresolutionvert(pixels)': '1200',
         'refreshrate(hz)': '120',
-        'prac_length': '6',
+        'prac_length': '2',
         'test': ('no','yes'),
         'trial order': ('random','blocks_context','blocks_congruency')}
 
@@ -725,7 +725,7 @@ for pracblock in practice:
 
         visibility = 24
         # the first half is easy, second is harder
-        if block_no > 3:
+        if block_no >= int(tot_prac_blocks/2):
             visibility= 12
         
         keys, rt = trialsequence(pracPath,pracmaskPath, practrial['im1name'], practrial['im2name'], practrial['mask'], visibility, ori, reduce)
